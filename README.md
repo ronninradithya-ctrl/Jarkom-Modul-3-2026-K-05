@@ -30,11 +30,29 @@ Jarkom-Modul-3-2026-K-05/
 │   ├── soal-1-ss2-jichi-routing-nat-verifikasi.png
 │   ├── ... (seluruh 37 screenshot bukti Soal 1–10)
 │   └── soal-10-ss5-kugisaki-fixed-ip-audit-after-restart.png
-├── scripts/              # Opsional: masukkan script /root asli dari tiap node
+├── scripts/              # Script .sh terpisah dari README (cek CATATAN-SUMBER.md)
 └── project/              # Opsional: file ekspor project GNS3
 ```
 
 Seluruh screenshot dalam laporan menggunakan path relatif `assets/nama-file.png`. Dengan demikian gambar akan ditampilkan otomatis ketika `README.md` dan folder `assets/` diunggah bersama ke GitHub. Penamaan gambar memakai pola `soal-N-ssM-deskripsi.png` dan urutan `ss1`, `ss2`, dan seterusnya dimulai kembali pada tiap soal.
+
+## Cara Menggunakan Script dari Repository
+
+README ini berfungsi sebagai **petunjuk praktik dan dokumentasi**, sedangkan kode lengkap disimpan terpisah pada folder [`scripts/`](scripts/). Dengan demikian pembaca GitHub dapat mengikuti langkah per nomor tanpa menyalin source script panjang dari halaman laporan.
+
+**Sebelum menjalankan command pada setiap soal:** unduh/clone repository ke komputer atau lingkungan yang dapat mengakses file node GNS3; pindahkan file `.sh` dari folder `scripts/` ke `/root/` **di node yang sesuai** (misalnya `soal-2-tengen.sh` ke Tengen dan `soal-3-jichi.sh` ke Jichi). Cara pemindahan bergantung pada GNS3 Console/VM yang dipakai. Command di bawah mengasumsikan file tersebut **sudah berada** di `/root/` masing-masing node; `cd /root` saja tidak otomatis mengambil file GitHub.
+
+Jika repository dapat diakses langsung dari terminal node yang sudah memiliki `git`, cara penyalinannya misalnya:
+
+```bash
+# Contoh di node Tengen setelah repository di-clone ke /root/Jarkom-Modul-3-2026-K-05
+cp /root/Jarkom-Modul-3-2026-K-05/scripts/soal-2-tengen.sh /root/
+chmod +x /root/soal-2-tengen.sh
+```
+
+**Penting:** paket script yang tersedia berisi sejumlah file **rekonstruksi dokumentasi**, bukan seluruh file asli hasil ekspor dari node GNS3. Khusus file Soal 4 dan 5 hanya memeriksa konfigurasi, **tidak membangun ulang pool**. Sebelum dipakai untuk mereproduksi praktikum pada GNS3 kosong, ganti dengan script asli dari node terkait; jangan menganggap hanya mengeksekusi semua file akan otomatis menghasilkan konfigurasi final.
+
+---
 
 ## Topologi Jaringan
 
@@ -129,52 +147,31 @@ Soal menggabungkan tiga hal yang saling bergantung: pengalamatan IP, routing ant
 
 Alamat `jichi:eth0` diberikan oleh NAT melalui DHCP. Karena dapat berubah menurut lingkungan GNS3, laporan ini tidak mengunci satu angka IP WAN; yang relevan ialah bahwa interface berada di segmen `192.168.122.0/24` dan default route menuju `192.168.122.1`.
 
-## Command yang Dijalankan dan Konfigurasi
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-### A. Mengaktifkan dan menyiapkan interface Jichi
+**Node:** `jichi`, `utahime`, `shoko`, dan `tengen`. Jalankan script **di terminal masing-masing node GNS3**, bukan di PowerShell komputer lokal.
 
-Contoh perintah inti yang merepresentasikan konfigurasi interface LAN pada Jichi:
+**Langkah 1 — Pastikan file script sudah ditempatkan di `/root`.** Gunakan file yang tersedia pada [folder `scripts`](scripts/). Nama file di GitHub menggunakan tanda hubung (`soal-1-...sh`).
 
-```bash
-ip link set eth1 up
-ip link set eth2 up
-ip link set eth3 up
-ip link set eth4 up
-
-ip addr replace 10.66.1.1/24 dev eth1
-ip addr replace 10.66.2.1/24 dev eth2
-ip addr replace 10.66.3.1/24 dev eth3
-ip addr replace 10.66.4.1/24 dev eth4
-```
-
-Untuk interface WAN, alamat NAT diperoleh sesuai skenario DHCP GNS3. Pengaturan routing keluar memanfaatkan next hop `192.168.122.1`.
-
-### B. Mengaktifkan forwarding dan source NAT
+**Langkah 2 — Konfigurasi router Jichi.**
 
 ```bash
-sysctl -w net.ipv4.ip_forward=1
-
-# Bentuk aturan yang digunakan untuk internet keluar:
-iptables -t nat -A POSTROUTING -s 10.66.0.0/16 -o eth0 -j MASQUERADE
+cd /root
+chmod +x soal-1-jichi.sh
+bash ./soal-1-jichi.sh
 ```
 
-**Penjelasan:** `-t nat` memilih tabel translasi alamat, `POSTROUTING` memproses paket sesaat sebelum keluar interface, `-s 10.66.0.0/16` mencakup prefix seluruh LAN internal, `-o eth0` membatasi operasi pada jalur NAT, dan `MASQUERADE` mengganti sumber paket memakai alamat interface WAN. Jika memasukkan command ini berulang kali, lakukan pemeriksaan terlebih dahulu agar aturan NAT tidak terduplikasi.
+Script menangani WAN DHCP, IP gateway empat network, IPv4 forwarding, dan source NAT. **Ekspektasi:** `eth1` sampai `eth4` masing-masing `10.66.1.1/24` sampai `10.66.4.1/24` dan internet dapat dijangkau.
 
-### C. Konfigurasi host infrastruktur
+**Langkah 3 — Konfigurasi setiap node infrastruktur.** Jalankan masing-masing *hanya* pada node yang sesuai.
 
-Sebagai contoh, `utahime` menggunakan:
+| Node | Command | IP dan gateway yang diharapkan |
+| --- | --- | --- |
+| Utahime | `bash /root/soal-1-utahime.sh` | `10.66.1.2/24`, gateway `10.66.1.1` |
+| Shoko | `bash /root/soal-1-shoko.sh` | `10.66.1.3/24`, gateway `10.66.1.1` |
+| Tengen | `bash /root/soal-1-tengen.sh` | `10.66.4.10/24`, gateway `10.66.4.1` |
 
-```bash
-ip link set eth0 up
-ip addr replace 10.66.1.2/24 dev eth0
-ip route replace default via 10.66.1.1 dev eth0
-```
-
-Host Shoko dan Tengen memakai pola yang sama dengan alamat IP/gateway sesuai tabel. Script dan file konfigurasi yang digunakan pada saat praktikum berada di direktori `/root` node masing-masing.
-
-## Validasi
-
-Di Jichi, pemeriksaan yang relevan adalah:
+**Langkah 4 — Verifikasi Jichi.**
 
 ```bash
 ip -br addr
@@ -184,17 +181,9 @@ iptables -t nat -L POSTROUTING -n -v
 ping -c 3 8.8.8.8
 ```
 
-Di Utahime, Shoko, dan Tengen:
+**Ekspektasi:** `net.ipv4.ip_forward = 1`, ada aturan `MASQUERADE` menuju `eth0`, dan ping internet berhasil. Pada Utahime/Shoko/Tengen, periksa `ip -br addr`, `ip route`, dan `ping -c 3 <IP-gateway-masing-masing>`.
 
-```bash
-hostname
-ip -br addr
-ip route
-ping -c 3 <IP-GATEWAY-LOKAL>
-ping -c 3 8.8.8.8
-```
-
-**Ekspektasi validasi:** setiap interface LAN mempunyai IP yang benar, semua host memiliki default route sesuai network, `ip_forward = 1`, ada aturan NAT, serta `ping` menuju gateway/internet menghasilkan balasan tanpa packet loss.
+**Jika gagal:** cek apakah `eth0` Jichi menerima IP NAT dan route default, kemudian pastikan gateway host mengarah ke IP Jichi pada network yang sama.
 
 ## Hasil Pengujian dan Analisis
 
@@ -271,80 +260,40 @@ Tengen adalah node Data Center `10.66.4.10`. Tidak semua client berada satu segm
 
 `isc-dhcp-server` menggunakan UDP 67 untuk menerima request, sementara client memakai UDP 68. Agar server tidak salah membaca interface lokal, `INTERFACESv4` diset ke `eth0`. Network 4 sengaja tidak mendapat pool karena Data Center menggunakan pengalamatan statis sesuai desain.
 
-## Command yang Dijalankan
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-### A. Instalasi paket pada Tengen
+**Node:** `tengen`. Pastikan Soal 1 selesai terlebih dahulu.
 
-```bash
-# Pada node tengen
-printf 'nameserver 192.168.122.1\n' > /etc/resolv.conf
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y isc-dhcp-server
-```
-
-DNS `192.168.122.1` digunakan selama tahap persiapan paket. Ini berbeda dengan resolver internal yang nantinya dibagikan kepada client melalui DHCP.
-
-### B. Menentukan interface layanan
-
-Berkas `/etc/default/isc-dhcp-server` berisi konfigurasi berikut:
+**Langkah 1 — Jalankan script instalasi dan konfigurasi DHCP.**
 
 ```bash
-INTERFACESv4="eth0"
-INTERFACESv6=""
+cd /root
+chmod +x soal-2-tengen.sh
+bash ./soal-2-tengen.sh
 ```
 
-### C. Deklarasi subnet dasar
+Script memasang `isc-dhcp-server`, memilih `eth0`, dan mendeklarasikan Network 2, 3, serta Network 4 (tanpa pool dinamis di Network 4).
 
-Cuplikan inti `/etc/dhcp/dhcpd.conf` berikut memperlihatkan struktur subnet yang disyaratkan:
-
-```conf
-authoritative;
-ddns-update-style none;
-
-default-lease-time 3600;
-max-lease-time 7200;
-
-subnet 10.66.4.0 netmask 255.255.255.0 {
-    option subnet-mask 255.255.255.0;
-    option broadcast-address 10.66.4.255;
-    option routers 10.66.4.1;
-    # Tidak ada range dinamis untuk Data Center.
-}
-
-subnet 10.66.2.0 netmask 255.255.255.0 {
-    option subnet-mask 255.255.255.0;
-    option broadcast-address 10.66.2.255;
-    option routers 10.66.2.1;
-    option domain-name-servers 10.66.1.2, 10.66.1.3;
-    option domain-name "k05.com";
-    option domain-search "k05.com";
-    # Pool berdasarkan DHCP class ditambahkan pada Soal 4.
-}
-
-subnet 10.66.3.0 netmask 255.255.255.0 {
-    option subnet-mask 255.255.255.0;
-    option broadcast-address 10.66.3.255;
-    option routers 10.66.3.1;
-    option domain-name-servers 10.66.1.2, 10.66.1.3;
-    option domain-search "k05.com";
-    # Pool khusus masa lease ditambahkan pada Soal 5.
-}
-```
-
-> **Catatan tahapan:** cuplikan di atas adalah **scope dasar No. 2**. Pada kondisi akhir praktikum, `/etc/dhcp/dhcpd.conf` juga memiliki tambahan class, pool, reservation, dan lease-time dari No. 4–6. Jangan menimpa konfigurasi akhir dengan cuplikan awal.
-
-## Validasi
+**Langkah 2 — Validasi file konfigurasi dan status daemon.**
 
 ```bash
-# Pada tengen
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
 service isc-dhcp-server status
 pgrep -a dhcpd
 ss -lunp | grep ':67'
+```
+
+**Ekspektasi:** konfigurasi valid, status `dhcpd is running`, proses `dhcpd` muncul, dan UDP port `67` terbuka. Tidak ada error `No subnet declaration`.
+
+**Langkah 3 — Periksa subnet.**
+
+```bash
 grep -n 'subnet 10.66' /etc/dhcp/dhcpd.conf
 ```
 
-**Ekspektasi:** pemeriksaan konfigurasi selesai tanpa error, proses `dhcpd` ditemukan, server mendengarkan UDP 67, dan tiga subnet telah dideklarasikan. Error `No subnet declaration` tidak muncul.
+**Ekspektasi:** deklarasi `10.66.2.0`, `10.66.3.0`, dan `10.66.4.0`. Jika server belum aktif, periksa hasil `dhcpd -t` sebelum mencoba restart.
+
+> **Perhatian:** script Soal 2 menulis konfigurasi dasar DHCP. Jika pool Soal 4–6 sudah dipasang, **jangan jalankan ulang script Soal 2** karena dapat menimpa konfigurasi akhir.
 
 ## Hasil Pengujian dan Analisis
 
@@ -396,49 +345,38 @@ DHCP Discover dikirim client sebagai broadcast. Karena client Itadori/Fushiguro/
 
 Relay mengisi alamat gateway relay (`giaddr`) sesuai segmen asal. Sebagai contoh ketika Itadori di Network 2 meminta alamat, relay pada interface `eth2` merepresentasikan jaringan `10.66.2.0/24` dengan `giaddr = 10.66.2.1`. Tengen memakai nilai ini untuk memilih subnet dan pool yang benar, lalu jawaban kembali melalui relay.
 
-## Command dan Konfigurasi
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-Di Jichi, paket relay dijalankan menggunakan konfigurasi yang terlihat pada bukti:
+**Node:** `jichi`, lalu verifikasi dari salah satu client Network 2/3.
 
-```bash
-# Konfigurasi utama di /etc/default/isc-dhcp-relay
-SERVERS="10.66.4.10"
-INTERFACES="eth2 eth3 eth4"
-OPTIONS=""
-```
-
-Untuk menjalankan atau memeriksa daemon:
+**Langkah 1 — Jalankan konfigurasi relay.**
 
 ```bash
-service isc-dhcp-relay restart
-pgrep -a dhcrelay
+cd /root
+chmod +x soal-3-jichi.sh
+bash ./soal-3-jichi.sh
 ```
 
-Bentuk proses yang terverifikasi selama pengujian lanjutan adalah:
-
-```text
-dhcrelay -i eth2 -i eth3 -i eth4 10.66.4.10
-```
-
-## Validasi
-
-Pemeriksaan relay pada Jichi:
+**Langkah 2 — Pastikan relay mengarah ke Tengen.**
 
 ```bash
 cat /etc/default/isc-dhcp-relay
 pgrep -a dhcrelay
 ```
 
-Pemeriksaan lease pada client dapat dilakukan dengan:
+**Ekspektasi:** `SERVERS="10.66.4.10"`, interface `eth2 eth3 eth4`, dan proses `dhcrelay` berjalan menuju `10.66.4.10`.
 
-```bash
-# Pada client Alpinet
+**Langkah 3 — Uji dari client yang telah memiliki konfigurasi pool.**
+
+```sh
 udhcpc -i eth0 -q -n
 ip -br addr show eth0
 ip route
 ```
 
-**Ekspektasi:** client Network 2 memperoleh IP `10.66.2.x` dengan gateway `10.66.2.1`, sedangkan client Network 3 memperoleh IP `10.66.3.x` dengan gateway `10.66.3.1`. Bukti rinci penerimaan alamat kedua network juga didokumentasikan pada No. 4–7.
+**Ekspektasi:** client Network 2 menerima `10.66.2.x/24` dan gateway `10.66.2.1`; Network 3 menerima `10.66.3.x/24` dan gateway `10.66.3.1`. Jangan menjalankan pengujian ini sebelum pool masing-masing tersedia.
+
+**Jika gagal:** pastikan server DHCP Tengen aktif dan proses relay memasang interface yang tepat.
 
 ## Hasil Pengujian dan Analisis
 
@@ -491,58 +429,44 @@ Network 2 mempunyai alamat subnet `10.66.2.0/24` dengan gateway `10.66.2.1`, bro
 
 **Penting:** nilai IP pada tabel merupakan hasil lease yang tampak pada bukti, bukan `fixed-address` untuk semua client. Lease dapat berbeda setelah database lease dibersihkan, selama tetap dalam pool yang diizinkan.
 
-## Command dan Konfigurasi
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-Pada Tengen, file `/etc/dhcp/dhcpd.conf` memuat pemisahan class berbasis hardware address dan rentang yang telah ditetapkan. Berikut **ilustrasi prinsip pemisahan** berdasarkan MAC (bukan salinan literal file konfigurasi asli):
+**Node konfigurasi:** `tengen`. **Node uji:** `itadori`, `fushiguro`, `zenin`, `okkotsu`.
 
-```conf
-# Contoh bentuk class berdasarkan hardware (MAC), BUKAN dump file asli.
-class "NET2_POOL1" { match hardware; }
-subclass "NET2_POOL1" 1:02:42:82:1c:22:00;  # Itadori
-subclass "NET2_POOL1" 1:02:42:f2:4f:86:00;  # Fushiguro
+**Langkah 1 — Periksa kebijakan pool yang sudah dikonfigurasi pada Tengen.**
 
-class "NET2_POOL2" { match hardware; }
-subclass "NET2_POOL2" 1:02:42:75:8d:2f:00;  # Zenin
-subclass "NET2_POOL2" 1:02:42:3a:94:86:00;  # Okkotsu
+```bash
+cd /root
+bash ./soal-4-tengen.sh
 ```
 
-> Cuplikan ini adalah **contoh sintaks class/subclass**, bukan salinan pasti konfigurasi Tengen. Angka `1:` menunjukkan hardware type Ethernet yang menjadi bagian dari data `hardware` untuk pencocokan subclass. Untuk dokumentasi yang dapat direproduksi, gunakan **definisi class/subclass asli dari `/etc/dhcp/dhcpd.conf` Tengen**. Prinsipnya ialah pemetaan MAC→kelas lalu pembatasan kelas pada `pool`.
+> File `soal-4-tengen.sh` pada paket ini adalah **script pemeriksaan**, bukan pembuat DHCP class/pool. Agar hasil reproduksi sama dengan screenshot, konfigurasi kelas dan kedua pool asli harus sudah tersedia di `/etc/dhcp/dhcpd.conf` pada Tengen.
 
-Cuplikan *pool* berikut menunjukkan bagian yang dapat dibandingkan langsung dengan hasil perintah `grep` pada Tengen:
-
-```conf
-# Struktur dua pool pada subnet 10.66.2.0/24:
-pool {
-    range 10.66.2.10 10.66.2.35;
-    allow members of "NET2_POOL1";
-}
-pool {
-    range 10.66.2.70 10.66.2.95;
-    allow members of "NET2_POOL2";
-}
-```
-
-Kebijakan ini memastikan tidak ada pernyataan `range` untuk `10.66.2.36–10.66.2.69`.
-
-## Validasi
-
-Pada Tengen:
+**Langkah 2 — Pastikan konfigurasi valid dan server berjalan.**
 
 ```bash
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
-grep -nE 'class|subclass|range 10\.66\.2\.|allow members' /etc/dhcp/dhcpd.conf
 service isc-dhcp-server status
 ```
 
-Pada masing-masing client Network 2:
+**Langkah 3 — Minta lease dari masing-masing client** (jalankan pada terminal client yang bersangkutan).
 
-```bash
-hostname
-ip -br addr
+```sh
+udhcpc -i eth0 -q -n
+ip -br addr show eth0
 ip route
 ```
 
-**Kriteria benar:** tiap anggota Pool 1 memiliki `10.66.2.10–.35`, tiap anggota Pool 2 memiliki `10.66.2.70–.95`, tidak ada anggota yang mendapat `.36–.69`, semua `/24`, dan default gateway `10.66.2.1`.
+**Ekspektasi hasil:**
+
+| Client | Kelompok | IP yang terdokumentasi | Gateway |
+| --- | --- | --- | --- |
+| Itadori | Pool 1 | `10.66.2.10/24` | `10.66.2.1` |
+| Fushiguro | Pool 1 | `10.66.2.11/24` | `10.66.2.1` |
+| Zenin | Pool 2 | `10.66.2.70/24` | `10.66.2.1` |
+| Okkotsu | Pool 2 | `10.66.2.71/24` | `10.66.2.1` |
+
+Pool 1 memiliki rentang `.10–.35`, Pool 2 `.70–.95`, dan `.36–.69` tidak boleh teralokasi. Angka IP per client di tabel merupakan hasil yang terlihat pada dokumentasi, bukan jaminan urutan alokasi baru.
 
 ## Hasil Pengujian dan Analisis
 
@@ -626,59 +550,42 @@ Network 3 memiliki gateway `10.66.3.1/24`, broadcast `10.66.3.255`, dan dua kela
 | `kusakabe` | Short lease 1800 detik | `.3.10–.3.89` | `10.66.3.11/24` | `10.66.3.1` |
 | `miwa` | Long lease 43200 detik | `.3.100–.3.199` | `10.66.3.100/24` | `10.66.3.1` |
 
-## Command dan Konfigurasi
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-Prinsip opsi DHCP untuk client Network 3:
+**Node konfigurasi:** `tengen`. **Node uji:** `ino`, `kusakabe`, `miwa`.
 
-```conf
-option routers 10.66.3.1;
-option broadcast-address 10.66.3.255;
-option subnet-mask 255.255.255.0;
-option domain-name-servers 10.66.1.2, 10.66.1.3;
-option domain-search "k05.com";
-```
-
-Cuplikan struktur kebijakan berikut menunjukkan hubungan antara kelas dan lease time, bukan pengganti file asli `dhcpd.conf`:
-
-```conf
-# Kelompok short lease
-pool {
-    range 10.66.3.10 10.66.3.89;
-    allow members of "NET3_SHORT";
-    default-lease-time 1800;
-    max-lease-time 1800;
-}
-
-# Kelompok long lease
-pool {
-    range 10.66.3.100 10.66.3.199;
-    allow members of "NET3_LONG";
-    default-lease-time 43200;
-    max-lease-time 43200;
-}
-```
-
-Identitas MAC/Client ID untuk masing-masing class diproses pada definisi class DHCP di Tengen. Pastikan dua pool tersebut terikat ke kelas yang tepat.
-
-## Validasi
-
-Di Tengen:
+**Langkah 1 — Periksa pool dan parameter lease yang sudah ada.**
 
 ```bash
-grep -nE 'NET3_SHORT|NET3_LONG|range 10\.66\.3\.|default-lease-time|max-lease-time' /etc/dhcp/dhcpd.conf
+cd /root
+bash ./soal-5-tengen.sh
+```
+
+> File `soal-5-tengen.sh` di folder `scripts` merupakan **pemeriksa konfigurasi**, bukan script yang memasang pool dari awal. Konfigurasi asli short/long lease harus tersedia pada Tengen.
+
+**Langkah 2 — Verifikasi syntax DHCP.**
+
+```bash
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
+service isc-dhcp-server status
 ```
 
-Pada masing-masing client:
+**Langkah 3 — Jalankan pada Ino, Kusakabe dan Miwa secara bergantian.**
 
-```bash
-hostname
-ip -br addr
+```sh
+udhcpc -i eth0 -q -n
+ip -br addr show eth0
 ip route
 cat /etc/resolv.conf
 ```
 
-**Ekspektasi:** Ino dan Kusakabe berada di rentang short lease; Miwa berada di rentang long lease; seluruhnya menggunakan gateway `10.66.3.1`, DNS `10.66.1.2` dan `10.66.1.3`, serta search `k05.com`. Waktu lease aktual divalidasi dari pesan DHCP (misalnya `Lease-Time` pada paket) atau berkas lease, bukan dari IP address saja.
+**Ekspektasi:** Ino (`10.66.3.10`) dan Kusakabe (`10.66.3.11`) masuk pool `.10–.89` dengan waktu lease **1800 detik**; Miwa (`10.66.3.100`) masuk pool `.100–.199` dengan lease **43200 detik**. Semua menggunakan gateway `10.66.3.1`, DNS `10.66.1.2`, `10.66.1.3`, dan domain search `k05.com`.
+
+**Langkah 4 — Bila perlu periksa nilai waktu di konfigurasi.**
+
+```bash
+grep -nE 'lease-time|range 10.66.3|domain-name-servers|domain-search' /etc/dhcp/dhcpd.conf
+```
 
 ## Hasil Pengujian dan Analisis
 
@@ -747,53 +654,38 @@ IP `10.66.3.99` terletak di luar pool short (`.10–.89`) dan long (`.100–.199
 
 **Static lease** berbeda dari konfigurasi IP statis lokal: alamat tetap diberikan melalui protokol DHCP. Karena itu Kugisaki tetap menerima DHCP options seperti gateway, DNS, subnet mask, dan domain search dari server.
 
-## Command dan Konfigurasi
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-Di Tengen terdapat blok host berikut pada `/etc/dhcp/dhcpd.conf`:
+**Node konfigurasi:** `tengen`. **Node uji:** `kugisaki`.
 
-```conf
-host kugisaki {
-    hardware ethernet 02:42:c0:e6:67:00;
-    fixed-address 10.66.3.99;
-}
-```
-
-Validasi syntax dilakukan sebelum server menerima lease baru:
+**Langkah 1 — Jalankan script reservation di Tengen setelah memastikan Soal 4–5 selesai.**
 
 ```bash
+cd /root
+chmod +x soal-6-tengen.sh
+bash ./soal-6-tengen.sh
+```
+
+Script menambahkan reservasi jika deklarasi host belum ada. MAC target adalah `02:42:c0:e6:67:00`, dengan fixed address `10.66.3.99`.
+
+**Langkah 2 — Verifikasi deklarasi host dan konfigurasi server.**
+
+```bash
+grep -A4 -B1 'host kugisaki' /etc/dhcp/dhcpd.conf
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
 service isc-dhcp-server status
 ```
 
-Di Kugisaki, renewal dilakukan dengan klien DHCP (gunakan hati-hati karena dapat mengubah IP aktif):
+**Langkah 3 — Pada Kugisaki, perbarui lease.**
 
-```bash
+```sh
 udhcpc -i eth0 -q -n
-hostname
-ip -br addr
+ip -br addr show eth0
 ip route
 cat /etc/resolv.conf
 ```
 
-## Validasi
-
-Kugisaki harus memperoleh:
-
-```text
-IPv4       : 10.66.3.99/24
-Gateway    : 10.66.3.1
-Broadcast  : 10.66.3.255
-DNS 1      : 10.66.1.2
-DNS 2      : 10.66.1.3
-Search     : k05.com
-```
-
-Untuk memastikan reservation tidak bertabrakan dengan pool dinamis, periksa rentang pada Network 3 dan identitas MAC:
-
-```bash
-grep -A4 -B1 'host kugisaki' /etc/dhcp/dhcpd.conf
-grep -n 'range 10.66.3.' /etc/dhcp/dhcpd.conf
-```
+**Ekspektasi:** `10.66.3.99/24`, gateway `10.66.3.1`, DNS Utahime/Shoko. IP Kugisaki tetap berada di luar rentang short lease dan long lease.
 
 ## Hasil Pengujian dan Analisis
 
@@ -864,36 +756,37 @@ Reservation khusus Kugisaki berhasil disiapkan di luar pool dinamis dan ditunjuk
 
 Untuk mencegah kesalahan validasi, alamat tetap pada tabel dibandingkan dengan *jenis kebijakan*. Berbeda dengan fixed address Kugisaki, IP client pool tetap bisa berubah pada pembaruan lease selama tidak keluar dari rentang yang diizinkan.
 
-## Command Audit pada Client
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-Bentuk command yang digunakan untuk audit informasi host:
+**Node uji:** seluruh client DHCP, terutama Itadori, Zenin, Ino, Miwa, dan Kugisaki. **Node server:** Tengen.
 
-```bash
+**Langkah 1 — Audit di setiap client.**
+
+```sh
+cd /root
+sh ./soal-7-client.sh
+```
+
+**Langkah 2 — Periksa detail bila ada nilai yang tidak cocok.**
+
+```sh
 hostname
-ip -br addr
+ip -br addr show eth0
 ip route
 cat /etc/resolv.conf
 ```
 
-Untuk uji konektivitas:
+**Langkah 3 — Di Tengen, periksa lease dan server.**
 
 ```bash
-# Ganti gateway sesuai network client
-ping -c 3 10.66.2.1
-ping -c 3 10.66.4.10
-```
-
-Client Network 3 memakai `10.66.3.1` sebagai gateway. Script audit yang berjalan dalam praktik juga menampilkan status kesesuaian kebijakan dan ringkasan hasil ping.
-
-## Audit Lease pada Tengen
-
-```bash
-service isc-dhcp-server status
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
-cat /var/lib/dhcp/dhcpd.leases
+service isc-dhcp-server status
+less /var/lib/dhcp/dhcpd.leases
 ```
 
-`dhcpd.leases` dapat menampung riwayat lease untuk alamat yang sama. Untuk menilai status terbaru, perhatikan blok yang paling akhir untuk IP tersebut, state binding, dan MAC/client identifier. Banyaknya blok dalam file bukan berarti seluruhnya sedang aktif bersamaan.
+**Ekspektasi:** semua client `/24`, gateway sesuai jaringan, DNS `10.66.1.2` dan `10.66.1.3`, search `k05.com`, serta alamat dalam pool/kelas masing-masing. Lease Kugisaki harus sesuai reservasi `10.66.3.99`.
+
+**Catatan:** file lease menyimpan riwayat, sehingga beberapa entri lama tidak berarti ada bentrok aktif. Cari binding terakhir untuk IP yang diperiksa.
 
 ## Hasil Pengujian dan Analisis
 
@@ -987,41 +880,37 @@ Pengujian menggunakan Itadori sebagai client Network 2. Field yang diharapkan da
 
 Field `giaddr` **bukan** alamat Tengen dan bukan pula IP client. Nilai tersebut diisi oleh relay untuk menunjukkan segmen asal sehingga server dapat memilih konfigurasi scope yang benar. Karena paket berasal dari Network 2, `giaddr` bernilai `10.66.2.1`.
 
-## Command yang Dijalankan
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-### A. Capture pada Tengen
+**Node capture:** `tengen`. **Node pemicu DHCP:** `itadori`.
 
-Di Tengen digunakan `tcpdump` untuk merekam paket DHCP UDP 67/68 pada interface layanan:
+**Langkah 1 — Siapkan capture pada Tengen.** Jalankan command berikut di terminal Tengen; biarkan berjalan saat pindah ke terminal Itadori.
 
 ```bash
-# Perintah perekaman — jalankan ketika client akan melakukan renewal
-# Hentikan capture setelah empat tahap DHCP terkumpul.
-tcpdump -i eth0 -s 0 -nn -w /root/soal8-dhcp.pcap 'udp port 67 or udp port 68'
+cd /root
+bash ./soal-8-tengen.sh capture
 ```
 
-### B. Memicu request lease pada Itadori
+File capture disimpan sebagai `/root/soal8-dhcp.pcap` oleh script. Capture berhenti setelah batas waktu script.
 
-```bash
-# Di Itadori: perbarui request DHCP untuk menghasilkan trafik capture
+**Langkah 2 — Saat capture aktif, pada Itadori minta lease baru.**
+
+```sh
 udhcpc -i eth0 -q -n
-ip -br addr
+ip -br addr show eth0
 ip route
 ```
 
-Jika client sudah memiliki lease, capture dapat dilakukan bersamaan dengan pembaruan penuh lease untuk memastikan Discover, Offer, Request, dan ACK tampil. Pengosongan IP aktif sebaiknya dilakukan hanya pada pengujian yang terkendali.
+Jika tidak muncul proses DORA lengkap karena lease lama masih aktif, lakukan pengujian ulang pada sesi lab dengan menghentikan client DHCP lama terlebih dahulu, lalu renew dengan script eksperimen yang memang digunakan pada node tersebut. Hindari flush IP pada koneksi yang sedang dipakai untuk administrasi jarak jauh.
 
-### C. Membaca paket hasil capture
-
-```bash
-# Di Tengen
-tcpdump -nn -vvv -r /root/soal8-dhcp.pcap   | grep 'DHCP-Message (53)'
-```
-
-Untuk mencari metadata server, alamat, lease, dan relay:
+**Langkah 3 — Setelah capture selesai, baca hasil di Tengen.**
 
 ```bash
-tcpdump -nn -vvv -r /root/soal8-dhcp.pcap   | grep -E 'Gateway-IP|Your-IP|Server-ID|Lease-Time'
+bash /root/soal-8-tengen.sh show
+tcpdump -nn -vvv -r /root/soal8-dhcp.pcap 2>/dev/null | grep -E 'Gateway-IP|Your-IP|Server-ID|Lease-Time'
 ```
+
+**Ekspektasi:** empat tahap `Discover → Offer → Request → ACK`, server `10.66.4.10`, leased IP `10.66.2.10`, gateway relay (`giaddr`) `10.66.2.1`, dan lease `3600` detik. Jika paket kurang lengkap, ulangi capture **sebelum** menjalankan DHCP client.
 
 ## Hasil Pengujian dan Analisis
 
@@ -1075,49 +964,47 @@ Soal tidak hanya menguji keberhasilan DHCP saat kondisi normal, tetapi juga mema
 | Simulasi gangguan | STOPPED | Tidak diteruskan | Request baru gagal / timeout. |
 | Setelah pemulihan | RUNNING | Diteruskan lagi | Lease Pool 1 berhasil, gateway sama. |
 
-## Perintah yang Dijalankan
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-Pengujian menggunakan script terpisah agar urutan *stop → fail → start → recover* dapat diulang. Script pada Jichi dan Itadori disimpan dalam direktori `/root` pada node masing-masing.
+**Tujuan pengujian:** membuktikan komunikasi DHCP dari Itadori bergantung pada relay Jichi. **Peringatan:** tahap pertama memang sengaja memutus fungsi DHCP; lakukan hanya pada lab GNS3 dan pastikan bisa kembali ke terminal Jichi.
 
-### A. Menghentikan relay pada Jichi
-
-```bash
-# RUN DI JICHI
-/root/soal9-jichi.sh stop
-/root/soal9-jichi.sh status
-```
-
-Perintah ini menghentikan `isc-dhcp-relay`/`dhcrelay` dan memeriksa agar tidak ada proses relay yang masih aktif.
-
-### B. Menguji kegagalan request pada Itadori
+**Langkah 1 — Hentikan relay dari Jichi.**
 
 ```bash
-# RUN DI ITADORI
-/root/soal9-itadori.sh fail
+bash /root/soal-9-jichi.sh stop
+bash /root/soal-9-jichi.sh status
 ```
 
-Script uji mengosongkan alamat IPv4 aktif untuk mensimulasikan permintaan lease baru, kemudian memanggil `udhcpc`. Tanpa relay, request DHCP tidak mencapai server lintas-subnet.
+**Ekspektasi:** status relay `STOPPED`/proses `dhcrelay` tidak ditemukan.
 
-### C. Memulihkan layanan relay pada Jichi
+**Langkah 2 — Uji kegagalan di Itadori.**
+
+```sh
+sh /root/soal-9-itadori.sh fail
+```
+
+**Ekspektasi:** permintaan `DHCPDISCOVER` berulang dan gagal mendapatkan lease; tidak ada alamat IPv4 dinamis yang baru diperoleh.
+
+**Langkah 3 — Pulihkan relay di Jichi.**
 
 ```bash
-# RUN DI JICHI
-/root/soal9-jichi.sh start
-/root/soal9-jichi.sh status
+bash /root/soal-9-jichi.sh start
+bash /root/soal-9-jichi.sh status
 ```
 
-### D. Mengulang DHCP pada Itadori
+**Ekspektasi:** relay `RUNNING`, mengarah ke `10.66.4.10` via `eth2`, `eth3`, dan `eth4`.
 
-```bash
-# RUN DI ITADORI
-/root/soal9-itadori.sh recover
+**Langkah 4 — Minta ulang lease di Itadori.**
+
+```sh
+sh /root/soal-9-itadori.sh recover
+ip -br addr show eth0
+ip route
 ```
 
-## Validasi
+**Ekspektasi:** Itadori kembali mendapat `10.66.2.10/24` dengan gateway `10.66.2.1`.
 
-Pada tahap gagal, status Jichi harus `STOPPED`, Itadori mengirim DHCP Discover tanpa mendapatkan lease baru, dan IPv4 pada interface uji tidak terpasang. Setelah restart relay, daemon harus `RUNNING`, tujuan server adalah `10.66.4.10`, dan Itadori kembali mendapat alamat dari Pool 1 (`10.66.2.10–.35`) serta gateway `10.66.2.1`.
-
-**Perbedaan penting:** client yang masih memegang lease lama dapat tetap berkomunikasi untuk sementara meskipun relay mati. Oleh sebab itu pengujian memaksa lease baru, bukan sekadar melakukan `ping` dari client dengan alamat yang sudah aktif.
+> Jangan berhenti setelah tahap gagal: relay **wajib diaktifkan kembali** agar pengujian berikutnya tidak terganggu.
 
 ## Hasil Pengujian dan Analisis
 
@@ -1188,65 +1075,61 @@ Image DebiNet pada GNS3 memakai proses inisialisasi berbasis `/etc/debinet-init.
 
 Pemeriksaan menunggu IP ini diperlukan untuk menghindari *race condition*: service dijalankan ketika interface belum siap atau route belum tersedia. Pemeriksaan menggunakan `pgrep` membantu mencegah duplikasi daemon ketika hook terpanggil lebih dari sekali.
 
-## Command yang Dijalankan
+## Langkah Pengerjaan dan Cara Menjalankan Script
 
-### A. Startup relay pada Jichi
+**Node:** Jichi dan Tengen; kemudian ulangi audit pada beberapa client.
 
-Prinsip perintah pemeriksaan:
+**Langkah 1 — Pasang startup DHCP Relay pada Jichi.**
 
 ```bash
-# Di Jichi
-ip -4 addr show dev eth4
-sysctl -w net.ipv4.ip_forward=1
-pgrep -a dhcrelay
-service isc-dhcp-relay status
+cd /root
+chmod +x soal-10-jichi.sh
+bash ./soal-10-jichi.sh
 ```
 
-Script startup praktikum disiapkan pada `/root/soal10-jichi-startup.sh`, sementara catatan eksekusinya ada di `/root/soal10-jichi-startup.log`. Isi `init.sh` memanggil script startup tersebut pada saat boot. Ketersediaan hook harus disesuaikan dengan image yang digunakan.
+Script menyiapkan hook startup untuk mengaktifkan relay dan mencatat hasil ke `/root/soal10-jichi-startup.log`.
 
-### B. Startup server pada Tengen
+**Langkah 2 — Pasang startup DHCP Server pada Tengen.**
 
 ```bash
-# Di Tengen
-ip -4 addr show dev eth0
-dhcpd -t -cf /etc/dhcp/dhcpd.conf
-pgrep -a dhcpd
-service isc-dhcp-server status
+cd /root
+chmod +x soal-10-tengen.sh
+bash ./soal-10-tengen.sh
 ```
 
-Script startup di Tengen menggunakan `/root/soal10-tengen-startup.sh` dan menghasilkan `/root/soal10-tengen-startup.log`.
+Script menyiapkan startup layanan DHCP Server dan log `/root/soal10-tengen-startup.log`.
 
-### C. Memverifikasi autostart setelah restart node
+**Langkah 3 — Uji setelah Stop/Start node pada GNS3.** Berhentikan dan jalankan kembali node Jichi dan Tengen melalui GUI GNS3. Jangan hanya menjalankan ulang script secara manual untuk mengklaim autostart berhasil.
 
-**Pengujian dilakukan dengan menghentikan dan menjalankan kembali node Jichi serta Tengen dari GNS3.** Setelah keduanya aktif, periksa kondisi layanan **sebelum** menjalankan perintah `start` manual:
+**Langkah 4 — Setelah node hidup kembali, validasi otomatis di Jichi.**
 
 ```bash
-# Jichi
-cat /root/soal10-jichi-startup.log
 pgrep -a dhcrelay
 cat /proc/sys/net/ipv4/ip_forward
+tail -20 /root/soal10-jichi-startup.log
 ```
 
+**Ekspektasi:** `dhcrelay` aktif, forwarding `1`, log mencatat startup berhasil.
+
+**Langkah 5 — Validasi otomatis di Tengen.**
+
 ```bash
-# Tengen
-cat /root/soal10-tengen-startup.log
-pgrep -a dhcpd
 service isc-dhcp-server status
+pgrep -a dhcpd
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
+tail -20 /root/soal10-tengen-startup.log
 ```
 
-### D. Audit ulang client
+**Ekspektasi:** `dhcpd is running` dan konfigurasi masih valid.
 
-Setelah kedua daemon tersedia, client dapat diperiksa dengan:
+**Langkah 6 — Audit ulang client sesudah restart.** Jalankan pada Itadori, Ino, dan Kugisaki:
 
-```bash
-hostname
-ip -br addr
-ip route
-cat /etc/resolv.conf
+```sh
+udhcpc -i eth0 -q -n
+sh /root/soal-7-client.sh
 ```
 
-Bila perlu, lakukan request baru menggunakan `udhcpc` untuk memastikan server dan relay dapat memproses lease setelah restart.
+**Ekspektasi:** Itadori dari Pool 1 (`10.66.2.10`), Ino dari short lease (`10.66.3.10`), dan Kugisaki tetap fixed address (`10.66.3.99`). Alamat yang benar harus berasal dari layanan yang hidup otomatis sesudah node dinyalakan.
 
 ## Hasil dan Analisis Autostart
 
