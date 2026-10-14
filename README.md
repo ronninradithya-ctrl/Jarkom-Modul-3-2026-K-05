@@ -62,8 +62,6 @@
 
 Keempat LAN memakai broadcast `10.66.1.255`, `10.66.2.255`, `10.66.3.255`, dan `10.66.4.255` menurut nomor segmennya. Alamat host klien pada tabel adalah hasil yang terlihat saat pengujian. DHCP dapat memberi alamat berbeda bila lease atau identitas klien berubah; yang tetap dinilai adalah subnet, pool, gateway, DNS, dan kelas lease. DNS klien adalah Utahime `10.66.1.2` dan Shoko `10.66.1.3`, dengan search domain `k05.com`.
 
-Nilai hasil pengujian di laporan mengikuti foto dan log praktikum yang tersedia. Skrip gabungan soal 1–20 tersedia di folder [`scrip-final/`](scrip-final/), satu berkas per nomor soal. Berkas soal 11–20 menggabungkan skrip per node yang sebelumnya disimpan di `/root`; nama file lama tetap ditulis pada langkah yang menghasilkan foto agar urutan pekerjaan dapat ditelusuri.
-
 ---
 
 # 1. Konfigurasi IP Address, Routing, NAT, dan Konektivitas Dasar
@@ -1239,7 +1237,7 @@ Sampai soal 10, routing, NAT, dan DHCP telah diuji. Pengujian DNS hingga benchma
 
 Saya menjadikan Utahime sumber zona `jujutsu.k05.com` dan Shoko penyimpan salinannya. Pada materi DNS Master–Slave, serial SOA adalah versi zona; Slave mengambil perubahan ketika serial Master naik.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinannya. Ini mengikuti materi DNS Master–Slave pada Modul 2: SOA memuat serial zona, dua NS menunjuk kedua server, dan `allow-transfer` di Master hanya mengizinkan Shoko (`10.66.1.3`). Ketika serial naik, BIND memberi notifikasi agar Slave mengambil versi baru. Satu file konsolidasi untuk langkah ini ada di [`scrip-final/soal-11.sh`](scrip-final/soal-11.sh); bagian Utahime, Shoko, dan Itadori dipilih menurut hostname.
 
@@ -1388,7 +1386,7 @@ zone "jujutsu.k05.com" {
 
 Saya menambah record A untuk IP Gojo, CNAME untuk `www`, PTR untuk reverse lookup, dan forwarder untuk domain di luar zona lokal. Keempatnya merupakan jenis jawaban DNS yang berbeda, jadi saya mengujinya satu per satu.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Di materi DNS, record A memetakan nama ke IPv4, CNAME membuat alias, PTR melakukan pencarian balik, dan forwarder meneruskan pertanyaan untuk domain luar. Skrip [`scrip-final/soal-12.sh`](scrip-final/soal-12.sh) menggabungkan pekerjaan pada Utahime, Shoko, dan Itadori. Nilai K-05 yang dipakai adalah Gojo `10.66.1.4` dan forwarder `192.168.122.1`.
 
@@ -1465,7 +1463,7 @@ www  IN CNAME  jujutsu.k05.com.
 
 Saya menjadikan Yaga Master MariaDB dan Inumaki Slave. Materi replikasi memakai binary log dan koordinat `File`/`Position`; koordinat itu dibaca saat setup karena posisinya bertambah setelah transaksi baru.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Bagian database pada materi Reverse Proxy menjelaskan Master dengan binary log dan Slave yang membaca log tersebut. Di K-05, Yaga (`10.66.4.8`) menyimpan tabel `db_shibuya_k05.request_logs`; Inumaki (`10.66.4.9`) menyalinnya. Satu file konsolidasi ada di [`scrip-final/soal-13.sh`](scrip-final/soal-13.sh). Di Yaga file ini menerima `setup`, `schema`, `insert`, `status`; di Inumaki menerima `setup FILE POSITION`, `status`.
 
@@ -1550,7 +1548,7 @@ binlog_format=ROW
 
 Saya menyiapkan Nginx dan PHP-FPM pada worker. Nginx menerima HTTP, PHP-FPM menjalankan PHP, dan aturan `allow`/`deny` membatasi akses langsung berdasarkan alamat proxy yang diizinkan.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Materi Reverse Proxy memakai Nginx sebagai web server dan PHP-FPM untuk menjalankan PHP, sementara `allow`/`deny` membatasi siapa yang boleh langsung mengakses worker. File [`scrip-final/soal-14.sh`](scrip-final/soal-14.sh) memuat bagian Maki/Panda, Nanami/Todo/Kirara, serta konfigurasi proxy awal Geto/Gojo. Jalankan `setup` hanya pada tahap soal 14: konfigurasi Gojo/Geto kemudian berkembang pada soal 15–20.
 
@@ -1644,7 +1642,7 @@ deny all;
 
 Saya memberi bobot tiga pada Nanami dan satu pada Todo di upstream Geto. Weighted Round Robin menargetkan porsi 3:1, sehingga dari 40 request perkiraannya 30 menuju Nanami dan 10 menuju Todo.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Nginx memilih server upstream menurut bobot. `weight=3` pada Nanami dan `weight=1` pada Todo berarti sasaran distribusi jangka panjang 3:1. Ini mengacu pada subbab Weighted Round Robin dalam materi Reverse Proxy; hasil 40 request tidak harus tepat 30 dan 10 pada setiap run. File [`scrip-final/soal-15.sh`](scrip-final/soal-15.sh) menggabungkan perubahan upstream Geto dan loop uji di Maki.
 
@@ -1701,7 +1699,7 @@ upstream api_cluster {
 
 Saya memakai Gojo sebagai pintu masuk kedua nama domain. Pemilihan `location` pada Nginx mengirim `/` ke frontend Maki/Panda dan `/api` ke Geto; upstream frontend tanpa bobot khusus memakai Round Robin.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Konfigurasi proxy Gojo pada tahap soal 14 melayani `jujutsu.k05.com` dan `www.jujutsu.k05.com`. `location /` menuju upstream Maki/Panda, sedangkan `location = /api` menuju Geto. Ini penerapan path-based routing pada materi Reverse Proxy. Setelah audit, ditambahkan `location ^~ /api/` supaya variasi `/api/` juga menuju Geto. File [`scrip-final/soal-16.sh`](scrip-final/soal-16.sh) berisi pemeriksaan konfigurasi Gojo dan uji dari Itadori.
 
@@ -1766,7 +1764,7 @@ location /      { proxy_pass http://frontend_cluster; }
 
 Saya meneruskan IP klien melalui dua header, lalu membatasi proxy yang boleh dipercaya. Geto menerima IP asli hanya dari Gojo; API mengecek sumber Geto serta kesamaan dua header sebelum menyimpan `client_ip`.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Materi Reverse Proxy membahas `X-Real-IP`, `X-Forwarded-For`, dan pemilihan proxy yang dipercaya. Gojo mengirim alamat klien ke Geto; Geto hanya mempercayai header IP dari Gojo `10.66.1.4`. Sebelum menulis ke database, PHP pada Nanami/Todo/Kirara memeriksa bahwa request datang dari Geto `10.66.4.2` dan kedua header berisi IPv4 yang sama. Bagian per node digabung pada [`scrip-final/soal-17.sh`](scrip-final/soal-17.sh). Baris Nginx adalah isi file konfigurasi, **bukan perintah yang diketik langsung di shell**.
 
@@ -1859,7 +1857,7 @@ real_ip_header X-Real-IP;
 
 Saya menandai Kirara sebagai `backup` di Geto. `max_fails=2` dan `fail_timeout=5s` adalah pemeriksaan pasif: Nginx menghitung kegagalan upstream dalam jendela lima detik dan memakai cadangan ketika kedua server utama tidak tersedia.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Konsep `backup`, `max_fails`, dan `fail_timeout` pada materi Reverse Proxy dipasang di upstream Geto. Nanami/Todo adalah server utama, sedangkan Kirara dipakai ketika keduanya tidak tersedia. Konfigurasi final Geto dan langkah uji digabung pada [`scrip-final/soal-18.sh`](scrip-final/soal-18.sh).
 
@@ -1947,7 +1945,7 @@ upstream api_cluster {
 
 Saya menyimpan respons web sukses selama sepuluh menit di Gojo dan membatasi `/api` menjadi 10 request per detik per IP. `X-Cache-Status` menunjukkan pengambilan dari frontend atau cache; respons 503 menunjukkan request ditolak oleh rate limit.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Menurut materi Proxy Caching, respons web yang sama dapat disimpan Nginx selama 10 menit. Header `X-Cache-Status` menunjukkan pengambilan pertama `MISS` dan berikutnya `HIT`. `limit_req_zone` membatasi API per alamat klien pada 10 request/detik. File [`scrip-final/soal-19.sh`](scrip-final/soal-19.sh) berisi konfigurasi Gojo yang aktif setelah audit serta dua uji Itadori yang dijalankan terpisah.
 
@@ -2015,7 +2013,7 @@ limit_req_zone $binary_remote_addr zone=api_per_ip:10m rate=10r/s;
 
 Saya mengukur web dan API dari Kusakabe memakai Apache Benchmark. RPS, waktu respons, serta status HTTP perlu dibaca bersama: penolakan cepat oleh Gojo dapat menaikkan RPS meskipun lebih sedikit request API yang berhasil.
 
-## Maksud soal dan kaitannya dengan materi
+## Maksud soal
 
 Apache Benchmark pada materi uji beban menghasilkan RPS, waktu per request, dan jumlah request gagal. `-n 600` menetapkan total request, `-c 30` menetapkan 30 koneksi serentak, dan `-l` mengizinkan panjang respons bervariasi karena frontend/API dinamis. File [`scrip-final/soal-20.sh`](scrip-final/soal-20.sh) menyatukan perintah Kusakabe dan langkah audit Gojo. Kusakabe memakai Alpine, sehingga paket penyedia `ab` adalah `apache2-utils` melalui `apk`, bukan `apt-get`.
 
