@@ -66,7 +66,7 @@ Keempat LAN memakai broadcast `10.66.1.255`, `10.66.2.255`, `10.66.3.255`, dan `
 
 # 1. Konfigurasi IP Address, Routing, NAT, dan Konektivitas Dasar
 
-## Soal asli
+## Soal
 
 > Ketika Curtain menutup Shibuya, jalur komunikasi antar zona Jujutsu High terputus. Pulihkan konektivitas dasar dengan mengonfigurasi jichi: eth0 memperoleh WAN dari NAT, sedangkan eth1–eth4 menjadi gateway Network 1–4 sesuai tabel pemetaan. Aktifkan IPv4 forwarding dan source NAT, lalu tetapkan IP statis host infrastruktur sesuai tabel spesifikasi. Buktikan konektivitas setiap host ke gateway dan akses eksternal dari host yang relevan.
 
@@ -115,14 +115,14 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-1.sh`](scrip-final/soa
 
 **Node:** `jichi`, `utahime`, `shoko`, dan `tengen`. Jalankan skrip **di terminal masing-masing node GNS3**, bukan di PowerShell komputer lokal.
 
-**Langkah 1: Pastikan file skrip sudah ditempatkan di `/root`.** Berkas gabungan repository adalah [`scrip-final/soal-1.sh`](scrip-final/soal-1.sh). Nama `soal-1-jichi.sh` dan nama per node berikut mencatat skrip yang dipakai saat praktik, sehingga tidak sama dengan nama berkas gabungan.
+**Langkah 1: Pastikan file skrip sudah ditempatkan di `/root`.** Berkas gabungan repository adalah [`scrip-final/soal-1.sh`](scrip-final/soal-1.sh). Nama skrip per-node di bawah mengikuti nama yang terlihat pada `tree /root`, sehingga berbeda dari nama berkas gabungan.
 
 **Langkah 2: Konfigurasi router Jichi.**
 
 ```bash
 cd /root
-chmod +x soal-1-jichi.sh
-bash ./soal-1-jichi.sh
+chmod +x soal1-jichi.sh
+bash ./soal1-jichi.sh
 ```
 
 Skrip menangani WAN DHCP, IP gateway empat network, IPv4 forwarding, dan source NAT. **Ekspektasi:** `eth1` sampai `eth4` masing-masing `10.66.1.1/24` sampai `10.66.4.1/24` dan internet dapat dijangkau.
@@ -131,9 +131,9 @@ Skrip menangani WAN DHCP, IP gateway empat network, IPv4 forwarding, dan source 
 
 | Node | Command | IP dan gateway yang diharapkan |
 | --- | --- | --- |
-| Utahime | `bash /root/soal-1-utahime.sh` | `10.66.1.2/24`, gateway `10.66.1.1` |
-| Shoko | `bash /root/soal-1-shoko.sh` | `10.66.1.3/24`, gateway `10.66.1.1` |
-| Tengen | `bash /root/soal-1-tengen.sh` | `10.66.4.10/24`, gateway `10.66.4.1` |
+| Utahime | `bash /root/soal1-utahime.sh` | `10.66.1.2/24`, gateway `10.66.1.1` |
+| Shoko | `bash /root/soal1-shoko.sh` | `10.66.1.3/24`, gateway `10.66.1.1` |
+| Tengen | `bash /root/soal1-tengen.sh` | `10.66.4.10/24`, gateway `10.66.4.1` |
 
 **Langkah 4: Verifikasi Jichi.**
 
@@ -205,7 +205,7 @@ Routing dasar pada Jichi, penetapan IP statis host infrastruktur, pengaktifan fo
 
 # 2. Instalasi dan Konfigurasi DHCP Server pada Tengen
 
-## Soal asli
+## Soal
 
 > Tengen, penjaga pusat distribusi di Data Center, harus mengambil alih pengalokasian alamat bagi wilayah yang membutuhkan konfigurasi dinamis. Konfigurasikan isc-dhcp-server pada [PREFIX IP].4.10. Deklarasikan Network 4 ([PREFIX IP].4.0/24) sebagai subnet lokal tanpa pool dinamis, lalu siapkan scope DHCP untuk Network 2 ([PREFIX IP].2.0/24) dan Network 3 ([PREFIX IP].3.0/24). Validasi konfigurasi dan pastikan service aktif tanpa error “No subnet declaration”.
 
@@ -240,8 +240,8 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-2.sh`](scrip-final/soa
 
 ```bash
 cd /root
-chmod +x soal-2-tengen.sh
-bash ./soal-2-tengen.sh
+chmod +x soal2-tengen.sh
+bash ./soal2-tengen.sh
 ```
 
 Skrip memasang `isc-dhcp-server`, memilih `eth0`, dan mendeklarasikan Network 2, 3, serta Network 4 (tanpa pool dinamis di Network 4).
@@ -299,7 +299,7 @@ Server DHCP terpusat di Tengen berhasil dipersiapkan dan diuji, mencakup deklara
 
 # 3. Konfigurasi DHCP Relay pada Jichi
 
-## Soal asli
+## Soal
 
 > Permintaan alamat dari Divisi A dan Divisi B tidak dapat menyeberangi subnet secara langsung. Konfigurasikan jichi sebagai DHCP Relay menuju tengen ([PREFIX IP].4.10), menggunakan eth2 untuk Network 2 dan eth3 untuk Network 3. Buktikan bahwa client dari kedua subnet berhasil memperoleh lease melalui relay.
 
@@ -333,8 +333,8 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-3.sh`](scrip-final/soa
 
 ```bash
 cd /root
-chmod +x soal-3-jichi.sh
-bash ./soal-3-jichi.sh
+chmod +x soal3-jichi.sh
+bash ./soal3-jichi.sh
 ```
 
 **Langkah 2: Pastikan relay mengarah ke Tengen.**
@@ -382,7 +382,7 @@ Jichi menjalankan fungsi DHCP Relay menuju Tengen dan menghubungkan dua subnet c
 
 # 4. Pembagian Dua DHCP Pool pada Network 2
 
-## Soal asli
+## Soal
 
 > Agar tim Dev dan Support di Divisi A menerima jatah alamat yang berbeda, atur dua pool DHCP pada Network 2. Tetapkan Pool 1 ([PREFIX IP].2.10–[PREFIX IP].2.35) untuk itadori dan fushiguro, serta Pool 2 ([PREFIX IP].2.70–[PREFIX IP].2.95) untuk zenin dan okkotsu. Rentang [PREFIX IP].2.36–[PREFIX IP].2.69 tidak boleh dialokasikan. Karena seluruh client berada pada subnet yang sama, gunakan DHCP class berdasarkan MAC Address atau Client ID untuk memisahkan kedua kelompok.
 
@@ -425,10 +425,10 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-4.sh`](scrip-final/soa
 
 ```bash
 cd /root
-bash ./soal-4-tengen.sh
+bash ./soal4-tengen.sh
 ```
 
-> Berkas gabungan [`scrip-final/soal-4.sh`](scrip-final/soal-4.sh) hanya memeriksa konfigurasi. Agar hasilnya sama dengan foto, kelas dan kedua pool harus sudah ada di `/etc/dhcp/dhcpd.conf` pada Tengen. Nama `soal-4-tengen.sh` adalah nama skrip saat praktik.
+> Berkas gabungan [`scrip-final/soal-4.sh`](scrip-final/soal-4.sh) hanya memeriksa konfigurasi. Agar hasilnya sama dengan foto, kelas dan kedua pool harus sudah ada di `/etc/dhcp/dhcpd.conf` pada Tengen. Nama skrip per-node yang terlihat pada Tengen adalah `soal4-tengen.sh`.
 
 **Langkah 2: Pastikan konfigurasi valid dan server berjalan.**
 
@@ -512,7 +512,7 @@ Pemisahan DHCP berdasarkan identitas client pada Network 2 sesuai dua kebijakan 
 
 # 5. Pengaturan Short Lease dan Long Lease pada Network 3
 
-## Soal asli
+## Soal
 
 > Setiap tim lapangan memiliki durasi operasi yang berbeda. Pada Network 3, berikan short lease 30 menit (1800 detik) kepada ino dan kusakabe, serta long lease 12 jam (43200 detik) kepada miwa. Gunakan pool short lease [PREFIX IP].3.10–[PREFIX IP].3.89 dan pool long lease [PREFIX IP].3.100–[PREFIX IP].3.199. Sesuaikan default-lease-time dan max-lease-time untuk setiap kelas client. Berikan pula DHCP options berupa DNS [PREFIX IP].1.2 dan [PREFIX IP].1.3, serta domain-search <xxxx>.com.
 
@@ -554,10 +554,10 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-5.sh`](scrip-final/soa
 
 ```bash
 cd /root
-bash ./soal-5-tengen.sh
+bash ./soal5-tengen.sh
 ```
 
-> Berkas gabungan [`scrip-final/soal-5.sh`](scrip-final/soal-5.sh) hanya memeriksa konfigurasi. Pool short dan long harus sudah tersedia pada Tengen. Nama `soal-5-tengen.sh` adalah nama skrip saat praktik.
+> Berkas gabungan [`scrip-final/soal-5.sh`](scrip-final/soal-5.sh) hanya memeriksa konfigurasi. Pool short dan long harus sudah tersedia pada Tengen. Nama skrip per-node yang terlihat pada Tengen adalah `soal5-tengen.sh`.
 
 **Langkah 2: Verifikasi syntax DHCP.**
 
@@ -631,7 +631,7 @@ Pemisahan pool DHCP Network 3 menghasilkan IP yang tepat untuk klien short lease
 
 # 6. DHCP Static Lease untuk Kugisaki
 
-## Soal asli
+## Soal
 
 > Kugisaki ditetapkan sebagai personel VIP yang harus mempertahankan alamat yang sama setiap kali terhubung. Buat DHCP static lease berdasarkan MAC Address client tersebut dengan fixed address [PREFIX IP].3.99. Pastikan alamat ini berada di luar seluruh pool dinamis, validasi konfigurasi server, lalu renew lease pada client. Buktikan bahwa alamat yang diterima sesuai dengan reservasi.
 
@@ -666,8 +666,8 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-6.sh`](scrip-final/soa
 
 ```bash
 cd /root
-chmod +x soal-6-tengen.sh
-bash ./soal-6-tengen.sh
+chmod +x soal6-tengen.sh
+bash ./soal6-tengen.sh
 ```
 
 Skrip menambahkan reservasi jika deklarasi host belum ada. MAC target adalah `02:42:c0:e6:67:00`, dengan fixed address `10.66.3.99`.
@@ -723,7 +723,7 @@ Reservation khusus Kugisaki berhasil disiapkan di luar pool dinamis dan ditunjuk
 
 # 7. Audit IP Address, Gateway, DNS, dan DHCP Lease
 
-## Soal asli
+## Soal
 
 > Setelah aturan alokasi diterapkan, pastikan setiap client menerima konfigurasi jaringan sesuai wilayahnya: subnet mask 255.255.255.0 (/24), gateway dan broadcast address yang benar, DNS [PREFIX IP].1.2 serta [PREFIX IP].1.3, dan domain-search yang ditentukan. Periksa IP address dan routing seluruh client Divisi A dan Divisi B, kemudian cocokkan lease dengan /var/lib/dhcp/dhcpd.leases pada tengen. Pastikan tidak ada alamat yang bertabrakan atau berada di luar kebijakan pool.
 
@@ -775,8 +775,10 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-7.sh`](scrip-final/soa
 **Langkah 1: Audit di setiap client.**
 
 ```sh
-cd /root
-sh ./soal-7-client.sh
+hostname
+ip -br addr show eth0
+ip route
+cat /etc/resolv.conf
 ```
 
 **Langkah 2: Periksa detail bila ada nilai yang tidak cocok.**
@@ -791,6 +793,7 @@ cat /etc/resolv.conf
 **Langkah 3: Di Tengen, periksa lease dan server.**
 
 ```bash
+bash /root/soal7-tengen.sh
 dhcpd -t -cf /etc/dhcp/dhcpd.conf
 service isc-dhcp-server status
 less /var/lib/dhcp/dhcpd.leases
@@ -864,7 +867,7 @@ Audit menunjukkan pengalamatan, gateway, DNS, search domain, dan konektivitas se
 
 # 8. Packet Capture dan Analisis Proses DHCP DORA
 
-## Soal asli
+## Soal
 
 > Sebelum Curtain dibuka kembali, buktikan bahwa proses pemberian alamat berjalan sesuai protokol. Lakukan packet capture saat salah satu client Network 2 atau Network 3 meminta lease baru. Gunakan tcpdump pada tengen atau jalur menuju Data Center untuk menunjukkan urutan DHCPDISCOVER → DHCPOFFER → DHCPREQUEST → DHCPACK. Identifikasi alamat server, alamat yang diberikan, lease time, dan field giaddr. Pastikan nilai giaddr sesuai dengan interface jichi yang menerima request dari subnet client.
 
@@ -908,7 +911,7 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-8.sh`](scrip-final/soa
 
 ```bash
 cd /root
-bash ./soal-8-tengen.sh capture
+bash ./soal8-tengen.sh capture
 ```
 
 File capture disimpan sebagai `/root/soal8-dhcp.pcap` oleh skrip. Capture berhenti setelah batas waktu skrip.
@@ -926,7 +929,7 @@ Jika tidak muncul proses DORA lengkap karena lease lama masih aktif, lakukan pen
 **Langkah 3: Setelah capture selesai, baca hasil di Tengen.**
 
 ```bash
-bash /root/soal-8-tengen.sh show
+bash /root/soal8-tengen.sh show
 tcpdump -nn -vvv -r /root/soal8-dhcp.pcap 2>/dev/null | grep -E 'Gateway-IP|Your-IP|Server-ID|Lease-Time'
 ```
 
@@ -972,7 +975,7 @@ Proses DHCP berlangsung lengkap melalui urutan DORA, dan field teknis pada paket
 
 # 9. Simulasi Gangguan serta Pemulihan DHCP Relay
 
-## Soal asli
+## Soal
 
 > Sebuah gangguan memutus jalur relay dan membuat permintaan alamat tidak sampai ke Data Center. Hentikan service DHCP Relay pada jichi, lalu paksa salah satu client di Network 2 atau Network 3 meminta lease baru dan catat gejalanya. Pulihkan service relay, ulangi permintaan DHCP, lalu buktikan bahwa client kembali memperoleh alamat dari pool yang benar dengan gateway semula.
 
@@ -999,8 +1002,8 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-9.sh`](scrip-final/soa
 **Langkah 1: Hentikan relay dari Jichi.**
 
 ```bash
-bash /root/soal-9-jichi.sh stop
-bash /root/soal-9-jichi.sh status
+sh /root/soal9-jichi.sh stop
+sh /root/soal9-jichi.sh status
 ```
 
 **Ekspektasi:** status relay `STOPPED`/proses `dhcrelay` tidak ditemukan.
@@ -1008,7 +1011,7 @@ bash /root/soal-9-jichi.sh status
 **Langkah 2: Uji kegagalan di Itadori.**
 
 ```sh
-sh /root/soal-9-itadori.sh fail
+sh /root/soal9-itadori.sh fail
 ```
 
 **Ekspektasi:** permintaan `DHCPDISCOVER` berulang dan gagal mendapatkan lease; tidak ada alamat IPv4 dinamis yang baru diperoleh.
@@ -1016,8 +1019,8 @@ sh /root/soal-9-itadori.sh fail
 **Langkah 3: Pulihkan relay di Jichi.**
 
 ```bash
-bash /root/soal-9-jichi.sh start
-bash /root/soal-9-jichi.sh status
+sh /root/soal9-jichi.sh start
+sh /root/soal9-jichi.sh status
 ```
 
 **Ekspektasi:** relay `RUNNING`, mengarah ke `10.66.4.10` via `eth2`, `eth3`, dan `eth4`.
@@ -1027,7 +1030,7 @@ Pada audit 15 Oktober, saya menemukan `/etc/default/isc-dhcp-relay` kosong setel
 **Langkah 4: Minta ulang lease di Itadori.**
 
 ```sh
-sh /root/soal-9-itadori.sh recover
+sh /root/soal9-itadori.sh recover
 ip -br addr show eth0
 ip route
 ```
@@ -1084,7 +1087,7 @@ Simulasi gangguan membuktikan bahwa DHCP Relay diperlukan untuk pengalokasian al
 
 # 10. Autostart DHCP Server dan DHCP Relay Setelah Restart
 
-## Soal asli
+## Soal
 
 > Setelah gangguan Shibuya tertangani, pastikan pemulihan bertahan setelah restart. Aktifkan autostart DHCP Server pada tengen dan DHCP Relay pada jichi, lalu restart kedua node. Verifikasi status layanan, IP, gateway, lease, dan konektivitas client Network 2–3. Pastikan kebijakan Pool 1, Pool 2, short lease, long lease, dan fixed address tetap berlaku.
 
@@ -1121,8 +1124,8 @@ Berkas gabungan untuk nomor ini adalah [`scrip-final/soal-10.sh`](scrip-final/so
 
 ```bash
 cd /root
-chmod +x soal-10-jichi.sh
-bash ./soal-10-jichi.sh
+chmod +x soal10-jichi.sh
+bash ./soal10-jichi.sh
 ```
 
 Skrip menyiapkan hook startup untuk mengaktifkan relay dan mencatat hasil ke `/root/soal10-jichi-startup.log`.
@@ -1131,8 +1134,8 @@ Skrip menyiapkan hook startup untuk mengaktifkan relay dan mencatat hasil ke `/r
 
 ```bash
 cd /root
-chmod +x soal-10-tengen.sh
-bash ./soal-10-tengen.sh
+chmod +x soal10-tengen.sh
+bash ./soal10-tengen.sh
 ```
 
 Skrip final nomor 10 sekarang menyimpan salinan `dhcpd.conf` dan paket DHCP di `/root`, lalu menyiapkan startup layanan beserta log `/root/soal10-tengen-startup.log`. File `/root/soal10-dhcpd.conf` harus dibuat **setelah** aturan Pool 1, Pool 2, short lease, long lease, dan reservasi Kugisaki sudah final. Saat perbaikan 15 Oktober, saya memasang versi helper ini langsung di Tengen setelah membangun ulang konfigurasi soal 2–6. Jichi juga memakai helper yang menyimpan paket relay dan memanggil `/usr/sbin/dhcrelay` langsung; salinannya ada di [folder recovery](scrip-final/recovery/README.md).
@@ -1164,7 +1167,10 @@ tail -20 /root/soal10-tengen-startup.log
 
 ```sh
 udhcpc -i eth0 -q -n
-sh /root/soal-7-client.sh
+hostname
+ip -br addr show eth0
+ip route
+cat /etc/resolv.conf
 ```
 
 **Ekspektasi:** Itadori dari Pool 1 (`10.66.2.10`), Ino dari short lease (`10.66.3.10`), dan Kugisaki tetap fixed address (`10.66.3.99`). Alamat yang benar harus berasal dari layanan yang hidup otomatis sesudah node dinyalakan.
@@ -1233,7 +1239,7 @@ Sampai soal 10, routing, NAT, dan DHCP telah diuji. Pengujian DNS hingga benchma
 
 # 11. DNS Master dan Slave
 
-## Soal asli
+## Soal
 
 > Utahime dan Shoko ditugaskan membangun sistem penamaan domain resmi agar seluruh pos tidak perlu menghafal alamat IP mentah. Konfigurasikan BIND9 pada utahime sebagai DNS Master dan shoko sebagai DNS Slave untuk mengelola domain jujutsu.\<xxxx>.com. Atur SOA record, NS delegasi untuk kedua server, dan terapkan allow-transfer dari Master ke Slave. Pastikan file zona berhasil tersinkronisasi otomatis ke shoko saat nomor serial di utahime dinaikkan, lalu buktikan dengan melakukan query dig ke kedua server dari salah satu client.
 
@@ -1243,13 +1249,13 @@ Saya menjadikan Utahime sumber zona `jujutsu.k05.com` dan Shoko penyimpan salina
 
 Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinannya. Ini mengikuti materi DNS Master–Slave pada Modul 2: SOA memuat serial zona, dua NS menunjuk kedua server, dan `allow-transfer` di Master hanya mengizinkan Shoko (`10.66.1.3`). Ketika serial naik, BIND memberi notifikasi agar Slave mengambil versi baru. Satu file konsolidasi untuk langkah ini ada di [`scrip-final/soal-11.sh`](scrip-final/soal-11.sh); bagian Utahime, Shoko, dan Itadori dipilih menurut hostname.
 
-1. **Utahime**, dari console node (direktori kerja bebas), jalankan konfigurasi Master. Pada pengerjaan awal, perintahnya `sh /root/soal11-master.sh setup`; versi konsolidasi memakai `sh /root/soal_11.sh setup`. Zona dan deklarasi Master harus lolos `named-checkzone` serta `named-checkconf`.
+1. **Utahime**, dari console node (direktori kerja bebas), jalankan konfigurasi Master dengan nama skrip yang terlihat di node. Zona dan deklarasi Master harus lolos `named-checkzone` serta `named-checkconf`.
 
    **Setup.** Perintah pada console node:
 
    ```sh
    # Utahime
-   sh /root/soal_11.sh setup
+   sh /root/soal11-master.sh setup
    ```
 
    **Hasil yang saya periksa:** Zona Master lulus named-checkzone; `allow-transfer` hanya ke Shoko.
@@ -1268,13 +1274,13 @@ Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinan
 
    ![Record dan query DNS Utahime](assets/11_06_utahime_record_dan_query.png)
 
-2. **Shoko**, jalankan `sh /root/soal11-slave.sh setup` (versi konsolidasi: `sh /root/soal_11.sh setup`). Periksa file hasil transfer di `/var/cache/bind/db.jujutsu.k05.com`. Lokasi `/var/cache/bind` memang dipakai BIND untuk zona Slave yang diterima dari Master.
+2. **Shoko**, jalankan skrip Slave dengan nama yang terlihat di node. Periksa file hasil transfer di `/var/cache/bind/db.jujutsu.k05.com`. Lokasi `/var/cache/bind` memang dipakai BIND untuk zona Slave yang diterima dari Master.
 
    **Setup.** Perintah pada console node:
 
    ```sh
    # Shoko
-   sh /root/soal_11.sh setup
+   sh /root/soal11-slave.sh setup
    ```
 
    **Hasil yang saya periksa:** Zona Slave ditransfer ke `/var/cache/bind` dari Utahime.
@@ -1293,13 +1299,18 @@ Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinan
 
    ![Konfigurasi Slave dan transfer zona di Shoko](assets/11_10_shoko_zone_transfer.png)
 
-3. **Itadori**, jalankan `sh /root/soal11-test.sh`; file konsolidasi dijalankan dengan `sh /root/soal_11.sh`. Skrip melakukan `dig` SOA, NS, dan A ke `10.66.1.2` serta `10.66.1.3`. Kedua server harus menjawab `NOERROR` dan mengembalikan nama server serta alamat yang sama.
+3. **Itadori**, cek SOA, NS, dan A langsung dengan `dig` ke `10.66.1.2` serta `10.66.1.3`. Kedua server harus menjawab `NOERROR` dan mengembalikan nama server serta alamat yang sama.
 
    **Cek.** Perintah pada console node:
 
    ```sh
    # Itadori
-   sh /root/soal_11.sh
+   for server in 10.66.1.2 10.66.1.3; do
+     dig @"$server" jujutsu.k05.com SOA +short
+     dig @"$server" jujutsu.k05.com NS +short
+     dig @"$server" utahime.jujutsu.k05.com A +short
+     dig @"$server" shoko.jujutsu.k05.com A +short
+   done
    ```
 
    **Hasil yang saya periksa:** Kedua DNS menjawab SOA dan NS tanpa error.
@@ -1310,15 +1321,17 @@ Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinan
 
    ![Query SOA dan NS ke dua DNS](assets/11_17_final_query_dua_dns.png)
 
-4. **Utahime**, naikkan serial dengan `sh /root/soal11-master.sh bump`, lalu ulangi query dari Itadori. Foto memperlihatkan serial `2026101401` menjadi `2026101402`; pada audit berikutnya serial sudah mencapai `2026101405`. Yang dinilai adalah serial Master dan Slave akhirnya **sama**, bukan angka serial tertentu.
+4. **Utahime**, naikkan serial dengan skrip Master yang terlihat di node, lalu ulangi query dari Itadori. Foto memperlihatkan serial `2026101401` menjadi `2026101402`; pada audit berikutnya serial sudah mencapai `2026101405`. Yang dinilai adalah serial Master dan Slave akhirnya **sama**, bukan angka serial tertentu.
 
    **Setup dan cek.** Perintah pada console node:
 
    ```sh
    # Utahime
-   sh /root/soal_11.sh bump
+   sh /root/soal11-master.sh bump
    # Itadori
-   sh /root/soal_11.sh
+   for server in 10.66.1.2 10.66.1.3; do
+     dig @"$server" jujutsu.k05.com SOA +short
+   done
    ```
 
    **Hasil yang saya periksa:** Serial pada Master dan Slave akhirnya sama; angka serial akan naik dari percobaan sebelumnya.
@@ -1345,9 +1358,9 @@ Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinan
 
    ```sh
    # Utahime
-   sh /root/soal_11.sh hook
+   sh /root/soal11-master.sh hook
    # Shoko
-   sh /root/soal_11.sh hook
+   sh /root/soal11-slave.sh hook
    # Utahime dan Shoko
    service named status
    ```
@@ -1384,7 +1397,7 @@ zone "jujutsu.k05.com" {
 
 # 12. A, CNAME, PTR, dan DNS Forwarder
 
-## Soal asli
+## Soal
 
 > Peta domain harus memetakan pintu masuk utama dan tetap bisa mencari alamat di luar kawasan Shibuya. Pada utahime, buat A record jujutsu.\<xxxx>.com yang mengarah ke gojo, serta CNAME www yang merujuk ke domain utama tersebut. Buat pula Reverse DNS (zona PTR) untuk melacak IP gojo kembali ke domain resminya, dan aktifkan fitur DNS Forwarder pada BIND9 mengarah ke IP gateway internet (192.168.122.1). Uji dari client dengan dig untuk mengecek CNAME, PTR, dan buktikan client tetap bisa melakukan ping ke domain internet seperti google.com.
 
@@ -1394,13 +1407,13 @@ Saya menambah record A untuk IP Gojo, CNAME untuk `www`, PTR untuk reverse looku
 
 Di materi DNS, record A memetakan nama ke IPv4, CNAME membuat alias, PTR melakukan pencarian balik, dan forwarder meneruskan pertanyaan untuk domain luar. Skrip [`scrip-final/soal-12.sh`](scrip-final/soal-12.sh) menggabungkan pekerjaan pada Utahime, Shoko, dan Itadori. Nilai K-05 yang dipakai adalah Gojo `10.66.1.4` dan forwarder `192.168.122.1`.
 
-1. **Utahime**, jalankan `sh /root/soal12-utahime.sh` (versi konsolidasi: `sh /root/soal_12.sh`). Skrip menambah `@ IN A 10.66.1.4`, `www IN CNAME jujutsu.k05.com.`, reverse zone `1.66.10.in-addr.arpa`, PTR untuk host `4`, dan aturan `forwarders`. Sesudah `named-checkconf` serta `named-checkzone` lulus, serial zona forward dinaikkan supaya perubahan A/CNAME diambil Shoko.
+1. **Utahime**, jalankan skrip yang terkonfirmasi pada node. Skrip menambah `@ IN A 10.66.1.4`, `www IN CNAME jujutsu.k05.com.`, reverse zone `1.66.10.in-addr.arpa`, PTR untuk host `4`, dan aturan `forwarders`. Sesudah `named-checkconf` serta `named-checkzone` lulus, serial zona forward dinaikkan supaya perubahan A/CNAME diambil Shoko.
 
    **Setup.** Perintah pada console node:
 
    ```sh
    # Utahime
-   sh /root/soal_12.sh
+   sh /root/soal12-utahime.sh
    ```
 
    **Hasil yang saya periksa:** Record A, CNAME, PTR, dan forwarder aktif; serial forward zone naik.
@@ -1411,18 +1424,18 @@ Di materi DNS, record A memetakan nama ke IPv4, CNAME membuat alias, PTR melakuk
 
    ![Record dan forwarder pada Utahime](assets/12_01b_utahime_konfigurasi_dns.png)
 
-2. **Shoko**, jalankan `sh /root/soal12-shoko.sh` (versi konsolidasi: `sh /root/soal_12.sh`) agar reverse zone juga ditransfer dari Utahime. Ini membuat PTR dapat dijawab ketika klien memakai DNS Slave.
+2. **Shoko**, jalankan skrip yang terkonfirmasi pada node agar reverse zone juga ditransfer dari Utahime. Ini membuat PTR dapat dijawab ketika klien memakai DNS Slave.
 
    **Setup.** Perintah pada console node:
 
    ```sh
    # Shoko
-   sh /root/soal_12.sh
+   sh /root/soal12-shoko.sh
    ```
 
    **Hasil yang saya periksa:** Reverse zone menjadi Slave dan dapat ditransfer.
 
-3. **Itadori**, jalankan `sh /root/soal12-test.sh records`, lalu `sh /root/soal12-test.sh internet`. Versi konsolidasi memakai `sh /root/soal_12.sh records` dan `sh /root/soal_12.sh internet`. `dig` untuk domain utama harus memberi `10.66.1.4`, `www` memberi `jujutsu.k05.com.`, dan reverse lookup `10.66.1.4` kembali ke nama utama.
+3. **Itadori**, gunakan file gabungan yang tersedia di repository dengan argumen `records`, lalu `internet`. `dig` untuk domain utama harus memberi `10.66.1.4`, `www` memberi `jujutsu.k05.com.`, dan reverse lookup `10.66.1.4` kembali ke nama utama.
 
    **Cek.** Perintah pada console node:
 
@@ -1461,7 +1474,7 @@ www  IN CNAME  jujutsu.k05.com.
 
 # 13. Replikasi MariaDB Yaga–Inumaki
 
-## Soal asli
+## Soal
 
 > Kepala Sekolah Yaga dan Inumaki mendirikan database terpusat yang redundan agar log aktivitas kutukan tetap aman tersimpan. Konfigurasikan MariaDB pada yaga sebagai DB-Master dan inumaki sebagai DB-Slave. Buat database db_shibuya_\<xxxx> beserta tabel request_logs di Master, aktifkan binary logging (log-bin, server-id), lalu hubungkan inumaki sebagai Slave yang menyalin data secara realtime dengan CHANGE MASTER TO. Berikan hak akses remote bagi seluruh node di Network 4, lalu buktikan replikasi berhasil dengan memasukkan data baru di Master dan memeriksa hasilnya di Slave.
 
@@ -1471,7 +1484,7 @@ Saya menjadikan Yaga Master MariaDB dan Inumaki Slave. Materi replikasi memakai 
 
 Bagian database pada materi Reverse Proxy menjelaskan Master dengan binary log dan Slave yang membaca log tersebut. Di K-05, Yaga (`10.66.4.8`) menyimpan tabel `db_shibuya_k05.request_logs`; Inumaki (`10.66.4.9`) menyalinnya. Satu file konsolidasi ada di [`scrip-final/soal-13.sh`](scrip-final/soal-13.sh). Di Yaga file ini menerima `setup`, `schema`, `insert`, `status`; di Inumaki menerima `setup FILE POSITION`, `status`.
 
-1. **Yaga**, jalankan `sh /root/soal13-yaga.sh setup`, kemudian `sh /root/soal13-yaga.sh schema`. Pada versi konsolidasi nama filenya `/root/soal_13.sh`. `server-id=13`, `log_bin`, database, tabel, dan user aplikasi Network 4 dibuat di tahap ini. Catat `File` dan `Position` dari `SHOW MASTER STATUS`; nilainya dipakai oleh Inumaki, sehingga tidak boleh menebak posisi.
+1. **Yaga**, jalankan file gabungan yang tersedia di repository dengan argumen `setup`, kemudian `schema`. `server-id=13`, `log_bin`, database, tabel, dan user aplikasi Network 4 dibuat di tahap ini. Catat `File` dan `Position` dari `SHOW MASTER STATUS`; nilainya dipakai oleh Inumaki, sehingga tidak boleh menebak posisi.
 
    **Setup.** Perintah pada console node:
 
@@ -1492,7 +1505,7 @@ Bagian database pada materi Reverse Proxy menjelaskan Master dengan binary log d
 
    ![Akses database dari Network 4](assets/13_03_akses_remote_network4.png)
 
-2. **Inumaki**, jalankan `sh /root/soal13-inumaki.sh setup FILE POSITION` menggunakan nilai yang dicatat di Yaga. Skrip mengatur `server-id=14`, menjalankan `CHANGE MASTER TO` dan `START SLAVE`. Periksa `SHOW SLAVE STATUS\G`: `Slave_IO_Running` dan `Slave_SQL_Running` harus `Yes`, tanpa pesan kesalahan.
+2. **Inumaki**, jalankan file gabungan yang tersedia di repository dengan argumen `setup FILE POSITION`, menggunakan nilai yang dicatat di Yaga. Skrip mengatur `server-id=14`, menjalankan `CHANGE MASTER TO` dan `START SLAVE`. Periksa `SHOW SLAVE STATUS\G`: `Slave_IO_Running` dan `Slave_SQL_Running` harus `Yes`, tanpa pesan kesalahan.
 
    **Setup dan cek.** Perintah pada console node:
 
@@ -1507,7 +1520,7 @@ Bagian database pada materi Reverse Proxy menjelaskan Master dengan binary log d
 
    ![Status replikasi Inumaki](assets/13_02_inumaki_slave_status.png)
 
-3. **Yaga**, jalankan `sh /root/soal13-yaga.sh insert`. **Inumaki**, periksa baris yang sama dengan `mariadb -e "SELECT id,worker_name,client_ip,proxy_ip FROM db_shibuya_k05.request_logs ORDER BY id DESC LIMIT 3;"`. Foto awal menunjukkan baris `uji-yaga` muncul pada Slave. Pada audit setelah restart, kedua DB juga sama-sama mencapai log ID `1430`.
+3. **Yaga**, jalankan file gabungan yang tersedia di repository dengan argumen `insert`. **Inumaki**, periksa baris yang sama dengan `mariadb -e "SELECT id,worker_name,client_ip,proxy_ip FROM db_shibuya_k05.request_logs ORDER BY id DESC LIMIT 3;"`. Foto awal menunjukkan baris `uji-yaga` muncul pada Slave. Pada audit setelah restart, kedua DB juga sama-sama mencapai log ID `1430`.
 
    **Uji tulis dan cek.** Perintah pada console node:
 
@@ -1546,7 +1559,7 @@ binlog_format=ROW
 
 # 14. Worker frontend dan API
 
-## Soal asli
+## Soal
 
 > Para penyihir lapangan bersiaga di Data Center sebagai pekerja backend untuk memproses aplikasi. Pasang Nginx dan PHP-FPM pada maki dan panda untuk menyajikan web frontend yang menampilkan hostname masing-masing. Pada nanami, todo, dan kirara, siapkan layanan API yang mencatat log request ke database yaga. Konfigurasikan virtual host agar worker merespons domain layanan yang ditentukan. Batasi akses langsung dari klien ke worker, web worker hanya menerima trafik melalui jalur proxy web yang ditentukan, sedangkan worker API hanya menerima trafik melalui geto. Uji bahwa akses langsung dari klien ditolak, sementara akses melalui reverse proxy tetap berhasil.
 
@@ -1556,7 +1569,7 @@ Saya menyiapkan Nginx dan PHP-FPM pada worker. Nginx menerima HTTP, PHP-FPM menj
 
 Materi Reverse Proxy memakai Nginx sebagai web server dan PHP-FPM untuk menjalankan PHP, sementara `allow`/`deny` membatasi siapa yang boleh langsung mengakses worker. File [`scrip-final/soal-14.sh`](scrip-final/soal-14.sh) memuat bagian Maki/Panda, Nanami/Todo/Kirara, serta konfigurasi proxy awal Geto/Gojo. Jalankan `setup` hanya pada tahap soal 14: konfigurasi Gojo/Geto kemudian berkembang pada soal 15–20.
 
-1. Di console **Maki**, jalankan `sh /root/soal14-frontend.sh setup maki`; di **Panda**, jalankan `sh /root/soal14-frontend.sh setup panda`. Pada file gabungan, ganti nama file menjadi `/root/soal_14.sh` dengan argumen yang sama. Nginx menerima Host `jujutsu.k05.com`/`www.jujutsu.k05.com`, PHP-FPM menyajikan `frontend=<hostname>`, dan hanya IP Gojo `10.66.1.4` yang diizinkan.
+1. Di console **Maki** dan **Panda**, gunakan file gabungan yang tersedia di repository dengan argumen `setup maki` atau `setup panda`. Nginx menerima Host `jujutsu.k05.com`/`www.jujutsu.k05.com`, PHP-FPM menyajikan `frontend=<hostname>`, dan hanya IP Gojo `10.66.1.4` yang diizinkan.
 
    **Setup.** Perintah pada console node:
 
@@ -1569,13 +1582,13 @@ Materi Reverse Proxy memakai Nginx sebagai web server dan PHP-FPM untuk menjalan
 
    **Hasil yang saya periksa:** Masing-masing frontend menjawab `frontend=maki` atau `frontend=panda` melalui Gojo.
 
-2. Di **Nanami**, **Todo**, dan **Kirara**, jalankan `sh /root/soal14-api.sh setup <nama-node>` (file gabungan: `sh /root/soal_14.sh setup <nama-node>`). Endpoint `/api` membuat baris di Yaga dan membalas JSON `status`, `worker`, `log_id`. Akses worker API hanya diizinkan dari Geto `10.66.4.2`.
+2. Di **Nanami**, jalankan skrip yang terkonfirmasi pada node: `sh /root/soal14-api.sh setup nanami`. Untuk **Todo** dan **Kirara**, gunakan file gabungan yang tersedia di repository dengan argumen nama node. Endpoint `/api` membuat baris di Yaga dan membalas JSON `status`, `worker`, `log_id`. Akses worker API hanya diizinkan dari Geto `10.66.4.2`.
 
    **Setup.** Perintah pada console node:
 
    ```sh
    # Nanami
-   sh /root/soal_14.sh setup nanami
+   sh /root/soal14-api.sh setup nanami
    # Todo
    sh /root/soal_14.sh setup todo
    # Kirara
@@ -1584,7 +1597,7 @@ Materi Reverse Proxy memakai Nginx sebagai web server dan PHP-FPM untuk menjalan
 
    **Hasil yang saya periksa:** API mengembalikan JSON dan membuat log di Yaga ketika dipanggil lewat Geto.
 
-3. Di **Geto** dan **Gojo**, jalankan `sh /root/soal14-proxy.sh setup geto` atau `setup gojo` (file gabungan: `sh /root/soal_14.sh setup <nama-node>`). Gojo meneruskan web ke Maki/Panda, sedangkan `/api` menuju Geto dan kemudian worker API.
+3. Di **Geto** dan **Gojo**, gunakan file gabungan yang tersedia di repository dengan argumen `setup geto` atau `setup gojo`. Gojo meneruskan web ke Maki/Panda, sedangkan `/api` menuju Geto dan kemudian worker API.
 
    **Setup.** Perintah pada console node:
 
@@ -1640,7 +1653,7 @@ deny all;
 
 # 15. Weighted Round Robin di Geto
 
-## Soal asli
+## Soal
 
 > Geto bertugas mengendalikan pembagian beban request API di internal Data Center agar server tidak tumbang bersamaan. Konfigurasikan Nginx pada geto sebagai Load Balancer internal dengan upstream api_cluster yang mengarahkan trafik ke nanami dan todo. Terapkan algoritma Weighted Round Robin dengan bobot 3:1, di mana nanami menerima porsi beban tiga kali lebih banyak daripada todo. Buktikan distribusi beban ini dengan melakukan loop request berulang kali ke geto dari jaringan lokal Data Center dan periksa rasio responnya.
 
@@ -1650,7 +1663,7 @@ Saya memberi bobot tiga pada Nanami dan satu pada Todo di upstream Geto. Weighte
 
 Nginx memilih server upstream menurut bobot. `weight=3` pada Nanami dan `weight=1` pada Todo berarti sasaran distribusi jangka panjang 3:1. Ini mengacu pada subbab Weighted Round Robin dalam materi Reverse Proxy; hasil 40 request tidak harus tepat 30 dan 10 pada setiap run. File [`scrip-final/soal-15.sh`](scrip-final/soal-15.sh) menggabungkan perubahan upstream Geto dan loop uji di Maki.
 
-1. **Geto**, jalankan `sh /root/soal15-geto.sh setup`; versi konsolidasi: `sh /root/soal_15.sh setup`. Perintah `nginx -t` harus sukses dan upstream menunjukkan Nanami `weight=3`, Todo `weight=1`.
+1. **Geto**, gunakan file gabungan yang tersedia di repository dengan argumen `setup`. Perintah `nginx -t` harus sukses dan upstream menunjukkan Nanami `weight=3`, Todo `weight=1`.
 
    **Setup.** Perintah pada console node:
 
@@ -1663,7 +1676,7 @@ Nginx memilih server upstream menurut bobot. `weight=3` pada Nanami dan `weight=
 
    ![Bobot upstream pada Geto](assets/15_01_geto_weight_3_1.png)
 
-2. **Maki**, jalankan `sh /root/soal15-test.sh`; versi konsolidasi: `sh /root/soal_15.sh`. Skrip mengirim 40 request langsung ke `10.66.4.2/api` dengan Host layanan, menyimpan nama worker, lalu menghitungnya. Foto menampilkan **31 Nanami dan 9 Todo**, mendekati rasio 3:1; audit lain menghasilkan 30 dan 10.
+2. **Maki**, gunakan file gabungan yang tersedia di repository untuk menguji distribusi request. Skrip mengirim 40 request langsung ke `10.66.4.2/api` dengan Host layanan, menyimpan nama worker, lalu menghitungnya. Foto menampilkan **31 Nanami dan 9 Todo**, mendekati rasio 3:1; audit lain menghasilkan 30 dan 10.
 
    **Cek.** Perintah pada console node:
 
@@ -1697,7 +1710,7 @@ upstream api_cluster {
 
 # 16. Path-Based Routing di Gojo
 
-## Soal asli
+## Soal
 
 > Gojo berdiri di perbatasan DMZ sebagai gerbang publik tunggal bagi seluruh client dari luar maupun dalam. Konfigurasikan Nginx pada gojo untuk melayani domain jujutsu.\<xxxx>.com dan www.jujutsu.\<xxxx>.com menggunakan metode Path-Based Routing. Atur agar request root (/) diteruskan secara Round Robin ke worker frontend (maki dan panda), sedangkan request ke path /api diteruskan langsung ke geto. Uji dari client Divisi A atau B bahwa akses ke web utama dibalas oleh Maki/Panda, sedangkan akses ke /api diteruskan dan dijawab oleh Nanami/Todo.
 
@@ -1762,7 +1775,7 @@ location /      { proxy_pass http://frontend_cluster; }
 
 # 17. Pencatatan IP asli klien
 
-## Soal asli
+## Soal
 
 > Komando pusat perlu mengetahui IP asli klien yang mengirimkan request tanpa tertukar dengan IP proxy perantara. Konfigurasikan gojo dan geto agar meneruskan informasi alamat klien melalui header X-Real-IP dan X-Forwarded-For. Pastikan geto hanya mempercayai informasi alamat klien yang diterima dari proxy terpercaya, dan skrip API menyimpan alamat klien yang telah diverifikasi ke kolom client_ip pada tabel request_logs di database yaga. Uji dengan mengirimkan request dari klien Network 2 dan Network 3 ke endpoint /api, kemudian periksa database untuk memastikan alamat yang tercatat sesuai dengan IP klien asal, bukan IP gojo atau geto.
 
@@ -1772,7 +1785,7 @@ Saya meneruskan IP klien melalui dua header, lalu membatasi proxy yang boleh dip
 
 Materi Reverse Proxy membahas `X-Real-IP`, `X-Forwarded-For`, dan pemilihan proxy yang dipercaya. Gojo mengirim alamat klien ke Geto; Geto hanya mempercayai header IP dari Gojo `10.66.1.4`. Sebelum menulis ke database, PHP pada Nanami/Todo/Kirara memeriksa bahwa request datang dari Geto `10.66.4.2` dan kedua header berisi IPv4 yang sama. Bagian per node digabung pada [`scrip-final/soal-17.sh`](scrip-final/soal-17.sh). Baris Nginx adalah isi file konfigurasi, **bukan perintah yang diketik langsung di shell**.
 
-1. **Gojo**, jalankan `sh /root/soal17-gojo.sh setup`, lalu `sh /root/soal17-gojo.sh status`. Pada file gabungan, perintahnya `sh /root/soal_17.sh setup` dan `sh /root/soal_17.sh status`. Nilai `X-Real-IP` dan `X-Forwarded-For` dikirim dari `$remote_addr` yang dilihat Gojo.
+1. **Gojo**, jalankan file gabungan yang tersedia di repository dengan argumen `setup`, lalu `status`. Nilai `X-Real-IP` dan `X-Forwarded-For` dikirim dari `$remote_addr` yang dilihat Gojo.
 
    **Setup dan cek.** Perintah pada console node:
 
@@ -1787,7 +1800,7 @@ Materi Reverse Proxy membahas `X-Real-IP`, `X-Forwarded-For`, dan pemilihan prox
 
    ![Header IP dari Gojo](assets/17_01_gojo_header_ip.png)
 
-2. **Geto**, jalankan `sh /root/soal17-geto.sh setup` lalu `status`. `set_real_ip_from 10.66.1.4` membatasi sumber header yang dipercaya; `real_ip_header X-Real-IP` membuat `$remote_addr` pada Geto menjadi IP klien yang diteruskan Gojo.
+2. **Geto**, jalankan file gabungan yang tersedia di repository dengan argumen `setup`, lalu `status`. `set_real_ip_from 10.66.1.4` membatasi sumber header yang dipercaya; `real_ip_header X-Real-IP` membuat `$remote_addr` pada Geto menjadi IP klien yang diteruskan Gojo.
 
    **Setup dan cek.** Perintah pada console node:
 
@@ -1802,14 +1815,17 @@ Materi Reverse Proxy membahas `X-Real-IP`, `X-Forwarded-For`, dan pemilihan prox
 
    ![Trusted proxy pada Geto](assets/17_02_geto_trusted_proxy.png)
 
-3. **Nanami**, **Todo**, dan **Kirara**, jalankan `sh /root/soal17-api.sh setup` lalu `status`. Validasi PHP mencegah header IP kosong/tidak valid dicatat sebagai IP klien. Pada foto Nanami, `php -l` menunjukkan tidak ada syntax error.
+3. **Nanami**, jalankan skrip yang terkonfirmasi pada node, `sh /root/soal17-api.sh setup`, lalu `sh /root/soal17-api.sh status`. Untuk **Todo** dan **Kirara**, gunakan file gabungan yang tersedia di repository. Validasi PHP mencegah header IP kosong/tidak valid dicatat sebagai IP klien. Pada foto Nanami, `php -l` menunjukkan tidak ada syntax error.
 
    **Setup dan cek.** Perintah pada console node:
 
    ```sh
-   # Nanami, Todo, Kirara
+   # Nanami
+   sh /root/soal17-api.sh setup
+   # Nanami
+   sh /root/soal17-api.sh status
+   # Todo dan Kirara: gunakan file gabungan yang tersedia di repository
    sh /root/soal_17.sh setup
-   # Nanami, Todo, Kirara
    sh /root/soal_17.sh status
    ```
 
@@ -1855,7 +1871,7 @@ real_ip_header X-Real-IP;
 
 # 18. Kirara sebagai cadangan API
 
-## Soal asli
+## Soal
 
 > nanami dan todo merupakan worker API utama, sedangkan kirara disiapkan sebagai worker cadangan. Konfigurasikan upstream api_cluster pada geto agar kirara menjadi server backup, serta terapkan passive health check dengan parameter max_fails=2 dan fail_timeout=5s pada worker API utama. Pastikan kirara menjalankan layanan API yang kompatibel dengan endpoint utama. Simulasikan gangguan dengan menghentikan layanan Nginx atau layanan API pada nanami dan todo. Buktikan dari klien bahwa request ke /api dialihkan ke kirara dan menghasilkan respons API yang valid tanpa error 502 Bad Gateway.
 
@@ -1943,7 +1959,7 @@ upstream api_cluster {
 
 # 19. Cache web dan rate limit API
 
-## Soal asli
+## Soal
 
 > gojo bertugas mengoptimalkan layanan web sekaligus membatasi request berlebihan. Konfigurasikan Nginx Proxy Caching untuk halaman web frontend dengan masa berlaku cache 10 menit dan tambahkan header X-Cache-Status. Terapkan rate limiting pada path /api dengan batas 10 request per detik per IP klien. Buktikan bahwa request ke halaman web yang memenuhi syarat cache menghasilkan status MISS pada akses awal dan HIT pada akses berikutnya. Uji rate limiting secara terpisah dengan mengirimkan request beruntun ke /api, kemudian catat status respons yang dihasilkan ketika batas terlampaui.
 
@@ -2011,7 +2027,7 @@ limit_req_zone $binary_remote_addr zone=api_per_ip:10m rate=10r/s;
 
 # 20. Benchmark dan audit access log
 
-## Soal asli
+## Soal
 
 > Sebelum Curtain di Shibuya resmi dibuka, Kusakabe memimpin audit untuk menguji kapasitas layanan. Dari terminal kusakabe, jalankan benchmark menggunakan Apache Benchmark dengan parameter -n 600 -c 30 menuju http://jujutsu.\<xxxx>.com/. Catat Requests per Second (RPS), latensi, dan jumlah request yang gagal. Lakukan pengujian tambahan pada endpoint /api untuk mengamati efek rate limiting. Bandingkan hasil pengujian baseline dengan hasil ketika rate limiting aktif, serta gunakan access log gojo untuk membedakan kegagalan aplikasi, koneksi, dan request yang ditolak oleh kebijakan rate limit.
 
