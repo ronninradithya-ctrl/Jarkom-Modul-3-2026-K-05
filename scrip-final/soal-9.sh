@@ -23,7 +23,7 @@ case "$ACTION" in
   echo 'OK: DHCP Relay sudah berhenti' ;;
  start)
   echo 'SOAL 9 - DHCP RELAY RECOVERY'
-  service isc-dhcp-relay restart
+  sh /root/soal10-jichi-startup.sh
   pgrep -a dhcrelay || { echo 'ERROR: Relay tidak aktif'; exit 1; }
   echo 'OK: DHCP Relay aktif' ;;
  status)
@@ -43,13 +43,17 @@ killall udhcpc 2>/dev/null || true
 ip link set eth0 up
 ip -4 addr flush dev eth0
 ip route del default 2>/dev/null || true
-udhcpc -i eth0 -q -n -t 3 -T 3
-RESULT=$?
+if udhcpc -i eth0 -q -n -t 3 -T 3; then RESULT=0; else RESULT=$?; fi
 hostname; ip -br addr show eth0; ip route
 if [ "$ACTION" = fail ]; then
   if [ "$RESULT" -ne 0 ]; then echo 'OK: DHCP GAGAL SAAT RELAY MATI'; else echo 'WARNING: DHCP tetap berhasil'; exit 1; fi
 else
-  if [ "$RESULT" -eq 0 ]; then echo 'OK: DHCP BERHASIL SETELAH RELAY DIPULIHKAN'; else echo 'ERROR: DHCP belum pulih'; exit 1; fi
+  if [ "$RESULT" -eq 0 ]; then
+    sh /root/soal7-client-dhcp.sh
+    echo 'OK: DHCP BERHASIL SETELAH RELAY DIPULIHKAN'
+  else
+    echo 'ERROR: DHCP belum pulih'; exit 1
+  fi
 fi
 }
 

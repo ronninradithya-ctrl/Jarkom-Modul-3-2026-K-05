@@ -621,7 +621,7 @@ Tampilan IP `10.66.3.100/24` serta gateway dan resolusi DNS yang sesuai.
 
 ![Soal 5 - Miwa: alamat long lease dan DNS](assets/soal-5-ss4-miwa-long-lease-ip-dns.png)
 
-Miwa tergolong long lease; pada sebagian sesi nama jendela/terminal tampak sebagai `mlwa`, tetapi IP dan konfigurasi mengacu ke klien Miwa.
+Miwa tergolong long lease; pada sebagian sesi nama jendela/terminal tampak sebagai `mlwa`, tetapi IP dan konfigurasi mengacu ke klien Miwa. Saat audit 15 Oktober, MAC Miwa yang aktif berbeda dari entri kelas lama. Saya menambahkan MAC `f2:dd:ec:51:c9:cb` ke `NET3_LONG` pada Tengen dan menyimpan konfigurasi terbaru untuk pemulihan boot. Miwa kemudian memperoleh `10.66.3.100/24`; berkas lease mencatat selisih `starts` dan `ends` tepat 43200 detik.
 
 ## Hasil
 
@@ -1022,6 +1022,8 @@ bash /root/soal-9-jichi.sh status
 
 **Ekspektasi:** relay `RUNNING`, mengarah ke `10.66.4.10` via `eth2`, `eth3`, dan `eth4`.
 
+Pada audit 15 Oktober, saya menemukan `/etc/default/isc-dhcp-relay` kosong setelah node hidup kembali. Karena itu `service isc-dhcp-relay start` saja tidak memulihkan relay. Saya menghentikan relay di Jichi, memastikan permintaan baru Okkotsu gagal, lalu memulihkannya dengan `sh /root/soal10-jichi-startup.sh`. Perintah helper ini menjalankan `dhcrelay` langsung dengan tiga interface dan alamat Tengen yang benar. Sesudahnya Okkotsu kembali mendapat `10.66.2.71/24`. Salinan gabungan [`scrip-final/soal-9.sh`](scrip-final/soal-9.sh) sudah disesuaikan; foto di bawah tetap mencatat sesi pengujian awal.
+
 **Langkah 4: Minta ulang lease di Itadori.**
 
 ```sh
@@ -1103,7 +1105,7 @@ Perbaikan layanan saat node masih hidup belum cukup memenuhi ketentuan praktikum
 
 ## Analisis Mekanisme Startup
 
-Image DebiNet pada GNS3 memakai proses inisialisasi berbasis `/etc/debinet-init.sh`; hook lokal `/root/init.sh` dapat dimanfaatkan untuk memanggil konfigurasi startup jika executable dan benar-benar di-load image tersebut. Pada node Jichi, startup menunggu tersedianya IP pada `eth4` (`10.66.4.1/24`), mengaktifkan forwarding IPv4, dan memastikan `dhcrelay` berjalan. Pada node Tengen, startup menunggu `eth0` (`10.66.4.10/24`), memvalidasi `dhcpd.conf`, dan menyalakan `dhcpd` apabila belum aktif.
+Image DebiNet pada GNS3 memakai proses inisialisasi berbasis `/etc/debinet-init.sh`; hook lokal `/root/init.sh` dapat dimanfaatkan untuk memanggil konfigurasi startup jika executable dan benar-benar di-load image tersebut. Pada node Jichi, startup menunggu tersedianya IP pada `eth4` (`10.66.4.1/24`), mengaktifkan forwarding IPv4, dan memastikan `dhcrelay` berjalan. Pada Tengen, versi pemulihan terbaru memastikan `eth0` memakai `10.66.4.10/24`, memasang ulang paket DHCP dan konfigurasi dari `/root` bila hilang, memvalidasi dengan `/usr/sbin/dhcpd -t`, lalu menyalakan satu proses `dhcpd`.
 
 Pemeriksaan menunggu IP ini diperlukan untuk menghindari *race condition*: service dijalankan ketika interface belum siap atau route belum tersedia. Pemeriksaan menggunakan `pgrep` membantu mencegah duplikasi daemon ketika hook terpanggil lebih dari sekali.
 
@@ -1133,7 +1135,7 @@ chmod +x soal-10-tengen.sh
 bash ./soal-10-tengen.sh
 ```
 
-Skrip menyiapkan startup layanan DHCP Server dan log `/root/soal10-tengen-startup.log`.
+Skrip final nomor 10 sekarang menyimpan salinan `dhcpd.conf` dan paket DHCP di `/root`, lalu menyiapkan startup layanan beserta log `/root/soal10-tengen-startup.log`. File `/root/soal10-dhcpd.conf` harus dibuat **setelah** aturan Pool 1, Pool 2, short lease, long lease, dan reservasi Kugisaki sudah final. Saat perbaikan 15 Oktober, saya memasang versi helper ini langsung di Tengen setelah membangun ulang konfigurasi soal 2–6. Jichi juga memakai helper yang menyimpan paket relay dan memanggil `/usr/sbin/dhcrelay` langsung; salinannya ada di [folder recovery](scrip-final/recovery/README.md).
 
 **Langkah 3: Uji setelah Stop/Start node pada GNS3.** Berhentikan dan jalankan kembali node Jichi dan Tengen melalui GUI GNS3. Jangan hanya menjalankan ulang skrip secara manual untuk mengklaim autostart berhasil.
 
@@ -1152,7 +1154,7 @@ tail -20 /root/soal10-jichi-startup.log
 ```bash
 service isc-dhcp-server status
 pgrep -a dhcpd
-dhcpd -t -cf /etc/dhcp/dhcpd.conf
+/usr/sbin/dhcpd -t -cf /etc/dhcp/dhcpd.conf
 tail -20 /root/soal10-tengen-startup.log
 ```
 
@@ -1167,7 +1169,7 @@ sh /root/soal-7-client.sh
 
 **Ekspektasi:** Itadori dari Pool 1 (`10.66.2.10`), Ino dari short lease (`10.66.3.10`), dan Kugisaki tetap fixed address (`10.66.3.99`). Alamat yang benar harus berasal dari layanan yang hidup otomatis sesudah node dinyalakan.
 
-**Konfigurasi setelah setup:** Hook `/root/init.sh` pada Jichi dan Tengen memanggil skrip startup masing-masing; layanan muncul lagi setelah node restart.
+**Konfigurasi setelah setup:** Hook `/root/init.sh` pada Jichi dan Tengen memanggil skrip startup masing-masing. Pemeriksaan foto berikut berasal dari uji restart saat pengerjaan Soal 10. Pada 15 Oktober, saya juga melakukan Stop All lalu Start All penuh; DHCP, relay, dan kedelapan lease klien pulih otomatis tanpa helper manual. Audit seluruh soal setelah itu terhenti ketika pengendali GNS3 menampilkan `502 Bad Gateway`; detailnya ada di [audit](AUDIT-2026-10-15.md).
 
 ## Hasil pengujian
 
@@ -1334,6 +1336,8 @@ Utahime menjadi sumber zona `jujutsu.k05.com`, sedangkan Shoko menyimpan salinan
    ![SOA Master sesudah kenaikan serial](assets/11_14a_client_setelah_serial_master.png)
 
    ![SOA Slave sesudah kenaikan serial](assets/11_14b_client_setelah_serial_slave.png)
+
+   Pada audit ulang 15 Oktober, saya menaikkan serial sekali lagi dari `2026101402` menjadi `2026101403`. Shoko mengambil serial baru secara otomatis. Snapshot boot BIND di kedua node saya perbarui sesudahnya; hasil terbaru ada pada [audit](AUDIT-2026-10-15.md).
 
 5. Hook `/root/init.sh` pada Utahime dan Shoko menjalankan BIND saat node dinyalakan. Setelah restart, `service named status` menunjukkan BIND berjalan dan query SOA tetap berhasil.
 

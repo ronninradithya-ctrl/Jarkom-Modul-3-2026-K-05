@@ -2,6 +2,8 @@
 set -eu
 # Soal 11 - K05 (10.66). Salin ke /root/soal_11.sh pada node terkait.
 # Tiap bagian dipilih dari hostname; jalankan argumen sesuai README.
+# Sesudah Stop/Start GNS3, paket dan zona yang hilang dipulihkan oleh
+# /root/boot-service-restore.sh (arsip: recovery/gns3-service-boot.sh).
 
 case "$(hostname)" in
   utahime)

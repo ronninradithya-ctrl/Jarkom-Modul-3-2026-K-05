@@ -2,6 +2,8 @@
 set -eu
 # Soal 13 - K05 (10.66). Salin ke /root/soal_13.sh pada node terkait.
 # Tiap bagian dipilih dari hostname; jalankan argumen sesuai README.
+# Sesudah Stop/Start, /root/boot-db-restore.sh memulihkan MariaDB.
+# Arsipnya di recovery/gns3-db-boot.sh; setup di sini untuk instalasi awal.
 
 case "$(hostname)" in
   yaga)

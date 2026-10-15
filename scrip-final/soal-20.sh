@@ -3,6 +3,8 @@ set -eu
 # Soal 20 - K05 (10.66). Salin ke /root/soal_20.sh pada node terkait.
 # Tiap bagian dipilih dari hostname; jalankan argumen sesuai README.
 # Urutan: web, baseline-off, baseline, rate-on, active, audit.
+# Mode baseline-off hanya untuk uji; akhiri dengan rate-on.
+# Config final Gojo dipulihkan saat boot oleh recovery/gojo-nginx-boot.sh.
 
 case "$(hostname)" in
   kusakabe)

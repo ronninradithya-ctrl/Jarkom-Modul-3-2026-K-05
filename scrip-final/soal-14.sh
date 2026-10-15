@@ -3,6 +3,8 @@ set -eu
 # Soal 14 - K05 (10.66). Salin ke /root/soal_14.sh pada node terkait.
 # Tiap bagian dipilih dari hostname; jalankan argumen sesuai README.
 # Jalankan setup hanya pada tahap Soal 14; setup menulis konfigurasi awal.
+# Sesudah Stop/Start, pemulihan worker/Geto memakai recovery/gns3-service-boot.sh;
+# Gojo memakai recovery/gojo-nginx-boot.sh. Jangan ulang setup awal.
 
 case "$(hostname)" in
   maki|panda)

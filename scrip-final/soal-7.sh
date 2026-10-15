@@ -1,7 +1,8 @@
 #!/bin/bash
 # PRAKTIKUM MODUL 3 K-05 — SOAL 7
 # Satu file per soal, tiap node memakai fungsi terpisah.
-# Sumber: file .sh yang diunggah; bukan script baru yang direka ulang.
+# Audit alamat saat layanan hidup. Pemulihan DHCP client setelah boot
+# memakai recovery/alpinet-client-boot.sh di /root/soal7-client-dhcp.sh.
 # Jalankan sebagai root pada node yang sesuai.
 set -e
 
