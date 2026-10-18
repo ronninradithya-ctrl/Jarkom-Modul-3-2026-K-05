@@ -2085,3 +2085,57 @@ access_log /var/log/nginx/soal20-access.log soal20;
 **Alasan teknis:** Pada Apache Benchmark, RPS adalah jumlah request dibagi lama tes. Contohnya baseline API `600 / 0,730` mendekati `821,44` request/detik; web `600 / 0,094` mendekati `6402,80` request/detik. Angka waktu pada tampilan dibulatkan, sehingga hitung ulang dari tiga digit bisa sedikit berbeda. `-n 600` menetapkan jumlah request dan `-c 30` jumlah koneksi bersamaan. `Failed requests` menghitung kegagalan transfer atau bentuk respons; status HTTP 503 dicatat terpisah sebagai `Non-2xx responses`. Pada run limit aktif, 599 respons cepat yang ditolak Gojo membuat RPS tampak lebih tinggi. Access log dengan `limit=REJECTED` dan `upstream=-` menunjukkan request tidak mencapai Geto.
 
 **Hasil yang saya cocokkan dengan soal:** web `/` diuji dengan tepat 600 request dan concurrency 30; RPS, latensi, serta request gagal dicatat. Baseline `/api` dan kondisi limit aktif dibandingkan dengan access log. `Failed requests=0` pada AB **tidak** berarti semua respons sukses HTTP; 503 dihitung terpisah sebagai `Non-2xx responses`.
+
+
+
+**Hasil Pengujian No 4 - 10**
+Soal No 4;
+
+<img width="1911" height="595" alt="ss 4_1_revisi" src="https://github.com/user-attachments/assets/ea82e269-bf1f-4ec3-811a-3dd0e61b1185" />
+<img width="1917" height="1077" alt="ss 4_2_revisi" src="https://github.com/user-attachments/assets/1bd92111-9844-45d8-afb0-897e35939d89" />
+
+
+Soal No 5;
+
+<img width="1917" height="802" alt="ss 5_1_revisi" src="https://github.com/user-attachments/assets/6836bc4e-2968-4f1c-90e7-5280ba03318f" />
+<img width="1917" height="1077" alt="ss 5_2_revisi" src="https://github.com/user-attachments/assets/39cd8081-cfca-47a6-8112-bf4f9ff6bfe3" />
+
+
+Soal No 6;
+
+
+<img width="1917" height="445" alt="ss 6_1_revisi" src="https://github.com/user-attachments/assets/2e35d757-694a-44fd-a698-23298bb53025" />
+<img width="1917" height="822" alt="ss 6_2_revisi" src="https://github.com/user-attachments/assets/65afe345-0ba1-42c0-ac65-221eef417b05" />
+
+
+Soal No 7;
+
+
+<img width="1917" height="1077" alt="ss 7_1_revisi" src="https://github.com/user-attachments/assets/79dc5585-9cb8-4f35-a4d4-6d39d902c085" />
+<img width="1917" height="1077" alt="ss 7_2_revisi" src="https://github.com/user-attachments/assets/561f7cfc-4ccb-4244-a9f3-e64e7b688966" />
+
+
+Soal No 8;
+
+
+<img width="1917" height="1077" alt="ss 8_1_revisi" src="https://github.com/user-attachments/assets/c0643576-2f53-4eb9-9696-d57576d54791" />
+<img width="1917" height="602" alt="ss 8_2_revisi" src="https://github.com/user-attachments/assets/1fdce356-f51e-481b-9146-b3789211f362" />
+
+
+Soal No 9;
+
+
+<img width="1917" height="165" alt="ss 9_1_revisi" src="https://github.com/user-attachments/assets/2a147149-2f2a-4a99-b0fe-14332c6229f7" />
+<img width="1917" height="485" alt="ss 9_2_revisi" src="https://github.com/user-attachments/assets/44312a13-1356-4eb2-a9e6-74d4c11dc380" />
+<img width="1917" height="210" alt="ss 9_3_revisi" src="https://github.com/user-attachments/assets/e3796ebf-e977-4235-8a35-ab260d3066f3" />
+<img width="1917" height="586" alt="ss 9_4_revisi" src="https://github.com/user-attachments/assets/b72b3b09-cddb-4e27-bb3f-20dcb01255e2" />
+
+
+Soal no 10;
+
+Sebelum di restart
+<img width="1917" height="572" alt="ss 10_1_revisi" src="https://github.com/user-attachments/assets/34cf45b3-dda2-411d-800b-64fefcc957ce" />
+
+Setelah di restart
+<img width="1917" height="1065" alt="ss 10_2_revisi" src="https://github.com/user-attachments/assets/f757e056-0f5f-49c4-bca0-11f17818f341" />
+<img width="1917" height="666" alt="ss 10_3_revisi" src="https://github.com/user-attachments/assets/7b1df027-7cb4-4283-9ac3-d8b97ba01188" />
