@@ -62,6 +62,10 @@
 
 Keempat LAN memakai broadcast `10.66.1.255`, `10.66.2.255`, `10.66.3.255`, dan `10.66.4.255` menurut nomor segmennya. Alamat host klien pada tabel adalah hasil yang terlihat saat pengujian. DHCP dapat memberi alamat berbeda bila lease atau identitas klien berubah; yang tetap dinilai adalah subnet, pool, gateway, DNS, dan kelas lease. DNS klien adalah Utahime `10.66.1.2` dan Shoko `10.66.1.3`, dengan search domain `k05.com`.
 
+**TOPOLOGY**
+
+<img width="1362" height="702" alt="image" src="https://github.com/user-attachments/assets/d98e30b7-1a59-41be-acac-e8399008149c" />
+
 ---
 
 # 1. Konfigurasi IP Address, Routing, NAT, dan Konektivitas Dasar
