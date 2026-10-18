@@ -64,7 +64,7 @@ Keempat LAN memakai broadcast `10.66.1.255`, `10.66.2.255`, `10.66.3.255`, dan `
 
 **TOPOLOGY**
 
-![topologi](topologi.png)
+![topologi](assets/topologi.png)
 
 ---
 
