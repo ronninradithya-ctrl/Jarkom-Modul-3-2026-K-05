@@ -1215,12 +1215,6 @@ Bukti layanan dan sebagian audit client setelah restart mendukung bahwa DHCP Rel
 
 ---
 
-## Hasil tahap routing dan DHCP
-
-Sampai soal 10, routing, NAT, dan DHCP telah diuji. Pengujian DNS hingga benchmark berlanjut pada soal 11–20 di bawah ini. Semua skrip gabungan tersedia di folder [`scrip-final/`](scrip-final/); nama file awalnya tetap tercatat pada langkah dan foto terkait.
-
----
-
 # 11. DNS Master dan Slave
 
 ## Soal
